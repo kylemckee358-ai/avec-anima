@@ -1,0 +1,16 @@
+{
+  "name": "Avec Anima: Into The Glen",
+  "date": "2025-11-01",
+  "startTime": "19:00",
+  "endTime": "01:00",
+  "location": "Glen Mooar Cottage Retreat, Sulby Valley, Isle of Man",
+  "ticketLink": null,
+  "description": "A Halloween night out at Glen Mooar — lanterns, pumpkins, and the Avec Anima residents deep in the valley. Not for the faint-hearted.",
+  "lineup": [
+    { "name": "Yeardos", "photo": null },
+    { "name": "Burg", "photo": null },
+    { "name": "Fionn", "photo": null },
+    { "name": "Allan Vannin", "photo": null },
+    { "name": "Hamo", "photo": null }
+  ]
+}

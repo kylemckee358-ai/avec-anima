@@ -1,0 +1,323 @@
+{
+  "upcoming": [],
+  "previous": [
+    {
+      "slug": "old-senior-race-day",
+      "poster": "assets/events/previous/old-senior-race-day/poster.jpg",
+      "name": "Avec Anima: Old Senior Race Day",
+      "date": "2026-06-05",
+      "startTime": "21:00",
+      "endTime": "02:00",
+      "location": "Mad Jacks, Douglas, Isle of Man",
+      "ticketLink": null,
+      "description": "TT Race Week special at Mad Jacks — Scon headlining, Burg and Yeardos in support, and a vinyl-only closing set from John Bolton.",
+      "lineup": [
+        {
+          "name": "Scon",
+          "photo": null
+        },
+        {
+          "name": "Burg",
+          "photo": null
+        },
+        {
+          "name": "Yeardos",
+          "photo": null
+        },
+        {
+          "name": "John Bolton (Vinyl Set)",
+          "photo": null
+        }
+      ]
+    },
+    {
+      "slug": "boxing-day",
+      "poster": "assets/events/previous/boxing-day/poster.jpg",
+      "name": "Avec Anima: Boxing Day",
+      "date": "2025-12-26",
+      "startTime": "19:30",
+      "endTime": "03:00",
+      "location": "The Conister Arms, Onchan, Isle of Man",
+      "ticketLink": null,
+      "description": "Boxing Day at The Conister Arms — three floors, a vinyl-only closing set from Allan Vannin, and the last Avec Anima night of the year. A proper way to shake off the turkey.",
+      "lineup": [
+        {
+          "name": "Burg",
+          "photo": null
+        },
+        {
+          "name": "Fionn",
+          "photo": null
+        },
+        {
+          "name": "Yeardos",
+          "photo": null
+        },
+        {
+          "name": "Allan Vannin (Vinyl Only Set)",
+          "photo": null
+        }
+      ]
+    },
+    {
+      "slug": "into-the-glen",
+      "poster": "assets/events/previous/into-the-glen/poster.jpg",
+      "name": "Avec Anima: Into The Glen",
+      "date": "2025-11-01",
+      "startTime": "19:00",
+      "endTime": "01:00",
+      "location": "Glen Mooar Cottage Retreat, Sulby Valley, Isle of Man",
+      "ticketLink": null,
+      "description": "A Halloween night out at Glen Mooar — lanterns, pumpkins, and the Avec Anima residents deep in the valley. Not for the faint-hearted.",
+      "lineup": [
+        {
+          "name": "Yeardos",
+          "photo": null
+        },
+        {
+          "name": "Burg",
+          "photo": null
+        },
+        {
+          "name": "Fionn",
+          "photo": null
+        },
+        {
+          "name": "Allan Vannin",
+          "photo": null
+        },
+        {
+          "name": "Hamo",
+          "photo": null
+        }
+      ]
+    },
+    {
+      "slug": "jungle-world",
+      "poster": "assets/events/previous/jungle-world/poster.jpg",
+      "name": "Avec Anima: Jungle World",
+      "date": "2025-06-27",
+      "startTime": "14:15",
+      "endTime": "23:30",
+      "location": "Ballaglass Glen, Isle of Man",
+      "ticketLink": null,
+      "description": "Full Moon Festival's jungle takeover — three days, three stages worth of names, and a lineup running from Friday afternoon straight through the weekend.",
+      "lineup": [
+        {
+          "name": "Isle Of Grooves",
+          "photo": null
+        },
+        {
+          "name": "Kyle McKee",
+          "photo": null
+        },
+        {
+          "name": "Yeardos",
+          "photo": null
+        },
+        {
+          "name": "Dunner",
+          "photo": null
+        },
+        {
+          "name": "Allan Vannin",
+          "photo": null
+        },
+        {
+          "name": "Burg",
+          "photo": null
+        }
+      ]
+    },
+    {
+      "slug": "the-night-train",
+      "poster": "assets/events/previous/the-night-train/poster.jpg",
+      "name": "Avec Anima: The Night Train",
+      "date": "2025-04-19",
+      "startTime": "20:00",
+      "endTime": "02:30",
+      "location": "The Railway, Douglas, Isle of Man",
+      "ticketLink": null,
+      "description": "Easter Weekend at The Railway — Josh Dolton topping a night of Avec Anima regulars, running through to 2:30am.",
+      "lineup": [
+        {
+          "name": "Josh Dolton",
+          "photo": null
+        },
+        {
+          "name": "PK",
+          "photo": null
+        },
+        {
+          "name": "Allan Vannin",
+          "photo": null
+        },
+        {
+          "name": "Yeardos",
+          "photo": null
+        },
+        {
+          "name": "Dunner",
+          "photo": null
+        }
+      ]
+    },
+    {
+      "slug": "one-bomb",
+      "poster": "assets/events/previous/one-bomb/poster.jpg",
+      "name": "Avec Anima: One Bomb",
+      "date": "2024-12-26",
+      "startTime": "21:00",
+      "endTime": "00:00",
+      "location": "Mrs Yang's, Douglas, Isle of Man",
+      "ticketLink": null,
+      "description": "Mrs Yang's turned one, and Avec Anima brought the party — Yeardos, Burg, and Connor Hislop on the decks, with an afterparty at Seven Sins running till late.",
+      "lineup": [
+        {
+          "name": "Yeardos",
+          "photo": null
+        },
+        {
+          "name": "Burg",
+          "photo": null
+        },
+        {
+          "name": "Connor Hislop",
+          "photo": null
+        }
+      ]
+    },
+    {
+      "slug": "sounds-of-summer",
+      "poster": "assets/events/previous/sounds-of-summer/poster.jpg",
+      "name": "Avec Anima: Sounds Of Summer",
+      "date": "2024-07-26",
+      "startTime": "20:30",
+      "endTime": "02:00",
+      "location": "Bar George, Douglas, Isle of Man",
+      "ticketLink": null,
+      "description": "Cocktails and sunset sets at Bar George — Ben Jones headlining alongside the residents, running from half eight till late.",
+      "lineup": [
+        {
+          "name": "Ben Jones (Before Records/Locus)",
+          "photo": null
+        },
+        {
+          "name": "Burg",
+          "photo": null
+        },
+        {
+          "name": "Yeardos",
+          "photo": null
+        },
+        {
+          "name": "Tom Doyle",
+          "photo": null
+        }
+      ]
+    },
+    {
+      "slug": "house-treat",
+      "poster": "assets/events/previous/house-treat/poster.jpg",
+      "name": "Avec Anima: House Retreat",
+      "date": "2024-06-28",
+      "startTime": "12:30",
+      "endTime": "23:30",
+      "location": "Glen Helen, Isle of Man",
+      "ticketLink": null,
+      "description": "Three days deep in the woods for Full Moon Festival — a teepee stage, a forest full of speakers, and a lineup that ran from midday straight through to sunrise. One of the biggest Avec Anima takeovers to date.",
+      "lineup": [
+        {
+          "name": "Allan Vannin",
+          "photo": null
+        },
+        {
+          "name": "Harry Adamson",
+          "photo": null
+        },
+        {
+          "name": "Hamo",
+          "photo": null
+        },
+        {
+          "name": "Yeardos",
+          "photo": null
+        },
+        {
+          "name": "Burg",
+          "photo": null
+        },
+        {
+          "name": "Fionn",
+          "photo": null
+        }
+      ]
+    },
+    {
+      "slug": "easter-express",
+      "poster": "assets/events/previous/easter-express/poster.jpg",
+      "name": "Avec Anima: Easter Express",
+      "date": "2024-03-31",
+      "startTime": "21:00",
+      "endTime": "03:00",
+      "location": "The Railway, Douglas, Isle of Man",
+      "ticketLink": null,
+      "description": "Easter Sunday at The Railway — Paz b2b Jaime Craig, PK, Hamo, Yeardos, and Connor Heath running the night through to 3am.",
+      "lineup": [
+        {
+          "name": "Paz b2b Jaime Craig",
+          "photo": null
+        },
+        {
+          "name": "PK",
+          "photo": null
+        },
+        {
+          "name": "Hamo",
+          "photo": null
+        },
+        {
+          "name": "Yeardos",
+          "photo": null
+        },
+        {
+          "name": "Connor Heath",
+          "photo": null
+        }
+      ]
+    },
+    {
+      "slug": "off-kilter",
+      "poster": "assets/events/previous/off-kilter/poster.jpg",
+      "name": "Avec Anima: Off Kilter",
+      "date": "2023-12-26",
+      "startTime": "21:00",
+      "endTime": "02:00",
+      "location": "Mrs Yang's, Douglas, Isle of Man",
+      "ticketLink": null,
+      "description": "A Boxing Day detour to Mrs Yang's — low light, cherry blossom, and a lineup built for dancing off the last of the year.",
+      "lineup": [
+        {
+          "name": "Joe Matthews",
+          "photo": null
+        },
+        {
+          "name": "Paz",
+          "photo": null
+        },
+        {
+          "name": "Yeardos",
+          "photo": null
+        },
+        {
+          "name": "Wints",
+          "photo": null
+        },
+        {
+          "name": "Fionn",
+          "photo": null
+        }
+      ]
+    }
+  ]
+}

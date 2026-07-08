@@ -1,0 +1,15 @@
+{
+  "name": "Avec Anima: Boxing Day",
+  "date": "2025-12-26",
+  "startTime": "19:30",
+  "endTime": "03:00",
+  "location": "The Conister Arms, Onchan, Isle of Man",
+  "ticketLink": null,
+  "description": "Boxing Day at The Conister Arms — three floors, a vinyl-only closing set from Allan Vannin, and the last Avec Anima night of the year. A proper way to shake off the turkey.",
+  "lineup": [
+    { "name": "Burg", "photo": null },
+    { "name": "Fionn", "photo": null },
+    { "name": "Yeardos", "photo": null },
+    { "name": "Allan Vannin (Vinyl Only Set)", "photo": null }
+  ]
+}

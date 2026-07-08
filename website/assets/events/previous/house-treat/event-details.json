@@ -1,0 +1,17 @@
+{
+  "name": "Avec Anima: House Retreat",
+  "date": "2024-06-28",
+  "startTime": "12:30",
+  "endTime": "23:30",
+  "location": "Glen Helen, Isle of Man",
+  "ticketLink": null,
+  "description": "Three days deep in the woods for Full Moon Festival — a teepee stage, a forest full of speakers, and a lineup that ran from midday straight through to sunrise. One of the biggest Avec Anima takeovers to date.",
+  "lineup": [
+    { "name": "Allan Vannin", "photo": null },
+    { "name": "Harry Adamson", "photo": null },
+    { "name": "Hamo", "photo": null },
+    { "name": "Yeardos", "photo": null },
+    { "name": "Burg", "photo": null },
+    { "name": "Fionn", "photo": null }
+  ]
+}

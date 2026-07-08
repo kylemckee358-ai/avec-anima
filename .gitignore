@@ -1,0 +1,10 @@
+node_modules/
+.tmp-uploads/
+.DS_Store
+**/.DS_Store
+
+# Design source files — too large / not needed for the site to run.
+# Keep these backed up separately (iCloud, external drive, etc.)
+POSTERS FOR PAST EVENTS/POSTERS.psd
+Photo1.png
+Photo2.png

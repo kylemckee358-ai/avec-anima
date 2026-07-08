@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Avec Anima</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="container">
+      <a href="index.html" class="nav__logo">
+        <img src="assets/logo.png" alt="Avec Anima">
+      </a>
+      <div class="nav__links">
+        <a href="index.html">Home</a>
+        <a href="events.html">Events</a>
+        <a href="music.html">Music</a>
+        <a href="store.html">Store</a>
+        <a href="admin.html" class="is-active">Admin</a>
+      </div>
+      <button class="nav__toggle" id="nav-toggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <header class="section container" style="padding-bottom: 0;">
+    <h1 class="section-title">Admin</h1>
+    <p class="admin-note" style="margin-top: 16px; max-width: 600px;">
+      Changes here write directly to the real event folders and music data files, and the public site picks them up immediately. This page only works while <code>node server.js</code> is running.
+    </p>
+  </header>
+
+  <!-- Add Event -->
+  <section class="section container admin-section">
+    <div class="section-header">
+      <h2 class="section-title" style="font-size: clamp(24px, 3vw, 32px);">Add Event</h2>
+    </div>
+    <form id="add-event-form" class="admin-form" enctype="multipart/form-data">
+      <div class="field">
+        <label for="ae-category">Category</label>
+        <select id="ae-category" name="category" required>
+          <option value="upcoming">Upcoming</option>
+          <option value="previous">Previous</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="ae-name">Event Name</label>
+        <input type="text" id="ae-name" name="name" placeholder="Avec Anima: Example Night" required>
+      </div>
+      <div class="fields-row">
+        <div class="field">
+          <label for="ae-date">Date</label>
+          <input type="date" id="ae-date" name="date" required>
+        </div>
+        <div class="field">
+          <label for="ae-location">Location</label>
+          <input type="text" id="ae-location" name="location" placeholder="Venue, Town, Isle of Man">
+        </div>
+      </div>
+      <div class="fields-row">
+        <div class="field">
+          <label for="ae-start">Start Time</label>
+          <input type="time" id="ae-start" name="startTime">
+        </div>
+        <div class="field">
+          <label for="ae-end">End Time</label>
+          <input type="time" id="ae-end" name="endTime">
+        </div>
+      </div>
+      <div class="field">
+        <label for="ae-ticket">Ticket Link</label>
+        <input type="text" id="ae-ticket" name="ticketLink" placeholder="https://... or # if not ready yet">
+      </div>
+      <div class="field">
+        <label for="ae-description">Description</label>
+        <textarea id="ae-description" name="description" placeholder="Short blurb for the event page"></textarea>
+      </div>
+      <div class="field">
+        <label for="ae-poster">Poster Image</label>
+        <input type="file" id="ae-poster" name="poster" accept="image/*" required>
+      </div>
+
+      <div class="field">
+        <label>Lineup</label>
+        <div id="ae-lineup-rows"></div>
+        <button type="button" id="ae-add-artist" class="btn btn--outline btn--small" style="margin-top: 8px;">Add Artist</button>
+        <p class="admin-note" style="margin-top: 6px;">Optional — you can add the full lineup now or come back and add artists later. Headshot is optional too, leave it blank for an "N/A" card.</p>
+      </div>
+
+      <button type="submit" class="btn btn--solid">Add Event</button>
+      <p class="admin-status" id="add-event-status"></p>
+    </form>
+  </section>
+
+  <!-- Manage Events -->
+  <section class="section container admin-section">
+    <div class="section-header">
+      <h2 class="section-title" style="font-size: clamp(24px, 3vw, 32px);">Upcoming Events</h2>
+    </div>
+    <div class="admin-list" id="upcoming-admin-list"></div>
+  </section>
+
+  <section class="section container admin-section">
+    <div class="section-header">
+      <h2 class="section-title" style="font-size: clamp(24px, 3vw, 32px);">Previous Events</h2>
+    </div>
+    <div class="admin-list" id="previous-admin-list"></div>
+  </section>
+
+  <!-- Music: Videos -->
+  <section class="section container admin-section">
+    <div class="section-header">
+      <h2 class="section-title" style="font-size: clamp(24px, 3vw, 32px);">Music — YouTube Videos</h2>
+    </div>
+    <p class="admin-note">Paste the full YouTube video link and it embeds directly on the page. Leave it as <code>#</code> to show a placeholder card instead. First video in the list is the featured one on the Music page.</p>
+    <div id="video-rows" style="margin-top: 20px;"></div>
+    <div style="margin-top: 16px; display: flex; gap: 12px;">
+      <button type="button" id="add-video-row" class="btn btn--outline">Add Video</button>
+      <button type="button" id="save-videos" class="btn btn--solid">Save Videos</button>
+    </div>
+    <p class="admin-status" id="videos-status"></p>
+  </section>
+
+  <!-- Music: SoundCloud -->
+  <section class="section container admin-section">
+    <div class="section-header">
+      <h2 class="section-title" style="font-size: clamp(24px, 3vw, 32px);">Music — SoundCloud</h2>
+    </div>
+    <form id="soundcloud-form" class="admin-form">
+      <div class="field">
+        <label for="sc-title">Playlist / Mix Title</label>
+        <input type="text" id="sc-title" name="playlistTitle">
+      </div>
+      <div class="field">
+        <label for="sc-embed">SoundCloud Track/Playlist URL</label>
+        <input type="text" id="sc-embed" name="embedUrl" placeholder="https://soundcloud.com/... (leave blank for placeholder)">
+      </div>
+      <div class="field">
+        <label for="sc-profile">SoundCloud Profile URL (for the Follow button)</label>
+        <input type="text" id="sc-profile" name="profileUrl" placeholder="https://soundcloud.com/avecanima">
+      </div>
+      <button type="submit" class="btn btn--solid">Save SoundCloud</button>
+      <p class="admin-status" id="soundcloud-status"></p>
+    </form>
+  </section>
+
+  <footer class="footer">
+    <div class="container footer__top">
+      <div class="footer__columns">
+        <div class="footer__col">
+          <a href="index.html">Home</a>
+          <a href="events.html">Events</a>
+          <a href="music.html">Music</a>
+          <a href="store.html">Store</a>
+        </div>
+        <div class="footer__col">
+          <a href="mailto:hello@avecanima.com">Contact</a>
+          <a href="https://instagram.com" target="_blank" rel="noopener">Instagram</a>
+        </div>
+      </div>
+      <img class="footer__brand" src="assets/logo.png" alt="Avec Anima">
+    </div>
+    <div class="container footer__bottom">
+      <p class="footer__copy">&copy; Avec Anima</p>
+    </div>
+  </footer>
+
+  <script src="js/admin.js"></script>
+  <script src="js/nav.js"></script>
+</body>
+</html>

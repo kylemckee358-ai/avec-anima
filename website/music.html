@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Music — Avec Anima</title>
+  <meta name="description" content="Watch Avec Anima live sets on YouTube and listen back on SoundCloud.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="container">
+      <a href="index.html" class="nav__logo">
+        <img src="assets/logo.png" alt="Avec Anima">
+      </a>
+      <div class="nav__links">
+        <a href="index.html">Home</a>
+        <a href="events.html">Events</a>
+        <a href="music.html" class="is-active">Music</a>
+        <a href="store.html">Store</a>
+        <a href="admin.html">Admin</a>
+      </div>
+      <button class="nav__toggle" id="nav-toggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <header class="section container" style="padding-bottom: 0;">
+    <h1 class="section-title">Watch</h1>
+    <p class="music-row__text" style="max-width: 640px; margin-top: 20px;">
+      <span style="color: var(--text-secondary); font-size: 15px; line-height: 1.7;">
+        Live sets, warehouse highlights, and a look behind the scenes from Avec Anima nights. New uploads on our YouTube channel after every show.
+      </span>
+    </p>
+    <div style="margin-top: 24px;">
+      <a href="#" target="_blank" rel="noopener" class="btn btn--solid">Subscribe on YouTube</a>
+    </div>
+  </header>
+
+  <section class="section container">
+    <div id="featured-video">
+      <p class="events-empty">Loading videos&hellip;</p>
+    </div>
+    <div class="video-grid" id="video-grid"></div>
+  </section>
+
+  <section class="section container" style="border-top: 1px solid var(--border);">
+    <div class="section-header">
+      <h2 class="section-title" style="font-size: clamp(32px, 5vw, 56px);">SoundCloud</h2>
+    </div>
+    <div class="music-row">
+      <div class="music-row__text">
+        <p>Mixes from Avec Anima nights and playlists we put together between shows. Full sets, no skips — follow along to hear what's coming before it lands on a lineup.</p>
+        <div>
+          <a href="#" target="_blank" rel="noopener" class="btn btn--solid">Follow on SoundCloud</a>
+        </div>
+      </div>
+      <div id="soundcloud-embed"></div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container footer__top">
+      <div class="footer__columns">
+        <div class="footer__col">
+          <a href="index.html">Home</a>
+          <a href="events.html">Events</a>
+          <a href="music.html">Music</a>
+          <a href="store.html">Store</a>
+        </div>
+        <div class="footer__col">
+          <a href="mailto:hello@avecanima.com">Contact</a>
+          <a href="https://instagram.com" target="_blank" rel="noopener">Instagram</a>
+        </div>
+      </div>
+      <img class="footer__brand" src="assets/logo.png" alt="Avec Anima">
+    </div>
+    <div class="container footer__bottom">
+      <p class="footer__copy">&copy; Avec Anima</p>
+    </div>
+  </footer>
+
+  <script src="js/media-helpers.js"></script>
+  <script src="js/music.js"></script>
+  <script src="js/nav.js"></script>
+</body>
+</html>

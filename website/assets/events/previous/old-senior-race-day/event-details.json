@@ -1,0 +1,15 @@
+{
+  "name": "Avec Anima: Old Senior Race Day",
+  "date": "2026-06-05",
+  "startTime": "21:00",
+  "endTime": "02:00",
+  "location": "Mad Jacks, Douglas, Isle of Man",
+  "ticketLink": null,
+  "description": "TT Race Week special at Mad Jacks — Scon headlining, Burg and Yeardos in support, and a vinyl-only closing set from John Bolton.",
+  "lineup": [
+    { "name": "Scon", "photo": null },
+    { "name": "Burg", "photo": null },
+    { "name": "Yeardos", "photo": null },
+    { "name": "John Bolton (Vinyl Set)", "photo": null }
+  ]
+}
