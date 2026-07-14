@@ -147,6 +147,12 @@ ul { list-style: none; }
   padding: 0 43px;
 }
 
+@media (max-width: 640px) {
+  .nav .container {
+    padding: 0 16px;
+  }
+}
+
 .nav__logo img {
   height: 36px;
   width: auto;
