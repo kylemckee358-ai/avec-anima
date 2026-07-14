@@ -144,7 +144,7 @@ ul { list-style: none; }
   justify-content: space-between;
   width: 100%;
   max-width: none;
-  padding: 0 200px;
+  padding: 0 50px;
 }
 
 .nav__logo img {
