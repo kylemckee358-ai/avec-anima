@@ -731,7 +731,8 @@ ul { list-style: none; }
 /* ── MERCH PREVIEW ── */
 .merch-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 220px));
+  justify-content: center;
   gap: clamp(20px, 3vw, 28px);
   margin-top: clamp(28px, 4vw, 40px);
   text-align: left;
