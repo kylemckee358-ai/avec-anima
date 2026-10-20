@@ -1,4 +1,6 @@
-const SHOPIFY_STORE_URL = 'https://kp1kgw-bb.myshopify.com';
+// Store address comes from admin → Site Settings (written into the page's Store links by the build)
+const storeLink = document.querySelector('[data-site-href="storeUrl"]');
+const SHOPIFY_STORE_URL = ((storeLink && storeLink.getAttribute('href')) || 'https://kp1kgw-bb.myshopify.com').replace(/\/+$/, '');
 
 async function loadMerch() {
   const grid = document.getElementById('home-merch-grid');

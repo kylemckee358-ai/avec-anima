@@ -1,0 +1,35 @@
+{
+  "siteUrl": "https://kylemckee358-ai.github.io/avec-anima",
+  "contactEmail": "hello@avecanima.com",
+  "instagramUrl": "https://www.instagram.com/avec.anima/",
+  "facebookUrl": "https://www.facebook.com/profile.php?id=61553040350027",
+  "storeUrl": "https://kp1kgw-bb.myshopify.com",
+  "youtubeChannelUrl": "",
+  "soundcloudProfileUrl": "",
+  "about": "Avec Anima is an underground house and tech house night on the Isle of Man, running events at venues across the island — from Douglas clubs to one-off nights in the glens.",
+  "homeTagline": "Underground house & tech house nights on the Isle of Man. No two are the same.",
+  "homeVideoText": "Live sets on YouTube, mixes on SoundCloud — a taste of what Avec Anima sounds like between shows.",
+  "homeSoundcloudText": "Mixes from Avec Anima nights, straight from SoundCloud.",
+  "galleryIntro": "After movies and photos from Avec Anima nights across the Isle of Man. Hover over a film to preview it, or tap it to watch with sound.",
+  "musicIntro": "Live sets, warehouse highlights, and a look behind the scenes from Avec Anima nights. New uploads on our YouTube channel after every show.",
+  "musicSoundcloudText": "Mixes from Avec Anima nights and playlists we put together between shows. Full sets, no skips — follow along to hear what's coming before it lands on a lineup.",
+  "storeComingSoonText": "The Avec Anima store is on its way. Check back soon.",
+  "seo": {
+    "index.html": {
+      "title": "Avec Anima — Underground House & Tech House Nights, Isle of Man",
+      "description": "Avec Anima runs underground house and tech house nights on the Isle of Man. Upcoming events, tickets, live sets and mixes."
+    },
+    "events.html": {
+      "title": "Events — Avec Anima | House & Tech House Nights, Isle of Man",
+      "description": "Upcoming and previous Avec Anima events — house and tech house nights at venues across the Isle of Man. Dates, lineups and tickets."
+    },
+    "gallery.html": {
+      "title": "Gallery & After Movies — Avec Anima | Isle of Man",
+      "description": "After movies and photos from Avec Anima house and tech house nights on the Isle of Man. Watch the films and download full-quality photos."
+    },
+    "music.html": {
+      "title": "Music — Avec Anima | Live Sets & Mixes",
+      "description": "Watch Avec Anima live sets on YouTube and listen back to mixes from our Isle of Man house and tech house nights on SoundCloud."
+    }
+  }
+}

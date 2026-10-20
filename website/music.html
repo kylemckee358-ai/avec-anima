@@ -37,7 +37,7 @@
         <a href="events.html">Events</a>
         <a href="gallery.html">Gallery &amp; After Movies</a>
         <a href="music.html" class="is-active">Music</a>
-        <a href="https://kp1kgw-bb.myshopify.com">Store</a>
+        <a data-site-href="storeUrl" href="https://kp1kgw-bb.myshopify.com">Store</a>
         <a href="admin.html">Admin</a>
       </div>
       <button class="nav__toggle" id="nav-toggle" aria-label="Toggle menu">
@@ -49,12 +49,10 @@
   <header class="section container" style="padding-bottom: 0;">
     <h1 class="section-title">Watch</h1>
     <p class="music-row__text" style="max-width: 640px; margin-top: 20px;">
-      <span style="color: var(--text-secondary); font-size: 15px; line-height: 1.7;">
-        Live sets, warehouse highlights, and a look behind the scenes from Avec Anima nights. New uploads on our YouTube channel after every show.
-      </span>
+      <span style="color: var(--text-secondary); font-size: 15px; line-height: 1.7;" data-site-text="musicIntro">Live sets, warehouse highlights, and a look behind the scenes from Avec Anima nights. New uploads on our YouTube channel after every show.</span>
     </p>
     <div style="margin-top: 24px;">
-      <a href="#" target="_blank" rel="noopener" class="btn btn--solid">Subscribe on YouTube</a>
+      <a data-site-href="youtubeChannelUrl" target="_blank" rel="noopener" class="btn btn--solid" href="#" hidden>Subscribe on YouTube</a>
     </div>
   </header>
 
@@ -71,9 +69,9 @@
     </div>
     <div class="music-row">
       <div class="music-row__text">
-        <p>Mixes from Avec Anima nights and playlists we put together between shows. Full sets, no skips — follow along to hear what's coming before it lands on a lineup.</p>
+        <p data-site-text="musicSoundcloudText">Mixes from Avec Anima nights and playlists we put together between shows. Full sets, no skips — follow along to hear what's coming before it lands on a lineup.</p>
         <div>
-          <a href="#" target="_blank" rel="noopener" class="btn btn--solid">Follow on SoundCloud</a>
+          <a data-site-href="soundcloudProfileUrl" target="_blank" rel="noopener" class="btn btn--solid" href="#" hidden>Follow on SoundCloud</a>
         </div>
       </div>
       <div id="soundcloud-embed"></div>
@@ -88,12 +86,12 @@
           <a href="events.html">Events</a>
           <a href="gallery.html">Gallery &amp; After Movies</a>
           <a href="music.html">Music</a>
-          <a href="https://kp1kgw-bb.myshopify.com">Store</a>
+          <a data-site-href="storeUrl" href="https://kp1kgw-bb.myshopify.com">Store</a>
         </div>
         <div class="footer__col">
-          <a href="mailto:hello@avecanima.com">Contact</a>
-          <a href="https://www.instagram.com/avec.anima/" target="_blank" rel="noopener">Instagram</a>
-          <a href="https://www.facebook.com/profile.php?id=61553040350027" target="_blank" rel="noopener">Facebook</a>
+          <a data-site-href="contactEmail" href="mailto:hello@avecanima.com">Contact</a>
+          <a data-site-href="instagramUrl" target="_blank" rel="noopener" href="https://www.instagram.com/avec.anima/">Instagram</a>
+          <a data-site-href="facebookUrl" target="_blank" rel="noopener" href="https://www.facebook.com/profile.php?id=61553040350027">Facebook</a>
         </div>
       </div>
       <img class="footer__brand" src="assets/logo.png" alt="Avec Anima">

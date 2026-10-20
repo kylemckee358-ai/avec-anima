@@ -1,4 +1,4 @@
-const SITE_VERSION = '1.1.0';
+const SITE_VERSION = '1.2.0';
 
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.footer__copy').forEach((el) => {

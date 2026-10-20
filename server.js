@@ -23,6 +23,12 @@
  *   DELETE /api/events/:category/:slug/aftermovie — remove after movie
  *   POST   /api/events/:category/:slug/gallery  — add gallery photos (multipart: photos[])
  *   DELETE /api/events/:category/:slug/gallery/:file — remove one gallery photo
+ *   PUT    /api/events/:category/:slug/gallery/order — reorder photos (json: { files: ['<id>.jpg', ...] })
+ *   POST   /api/events/:category/:slug/gallery/delete — remove several photos (json: { files: [...] })
+ *   PUT    /api/events/:category/:slug/lineup       — rename/reorder lineup (json: [{ name, photo }])
+ *   POST   /api/events/:category/:slug/lineup/:index/photo — replace one artist's headshot (multipart: photo)
+ *   GET    /api/site                            — site settings (links, page text, Google titles)
+ *   PUT    /api/site                            — save site settings (json), rebuilds every page
  *   GET    /api/music/videos                    — read videos.json
  *   PUT    /api/music/videos                    — overwrite videos.json (json array)
  *   GET    /api/music/soundcloud                — read soundcloud.json
@@ -47,7 +53,26 @@ const {
   writeManifest,
   readEventDetailsRaw,
   writeEventDetailsRaw,
+  AFTERMOVIE_FILE,
+  AFTERMOVIE_POSTER_FILE,
+  PHOTO_FILE,
+  readGalleryOrder,
+  writeGalleryOrder,
 } = require('./lib/events-data');
+
+// Fresh short id for new filenames. Files are never renamed onto a name that was just
+// in use — this folder syncs to iCloud, which turns that into "name 2.jpg" conflict copies.
+function newId() {
+  return `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+}
+
+function removeMatching(dir, pattern, keep) {
+  if (!fs.existsSync(dir)) return;
+  for (const f of fs.readdirSync(dir)) {
+    if (pattern.test(f) && f !== keep) fs.unlinkSync(path.join(dir, f));
+  }
+}
+const { readSite, writeSite } = require('./lib/site');
 
 const app = express();
 const PORT = 4200;
@@ -257,15 +282,14 @@ app.post('/api/events/:category/:slug/poster', upload.single('poster'), async (r
   const dir = eventDir(category, slug);
   if (!fs.existsSync(dir)) return res.status(404).json({ error: 'Event not found' });
 
+  const oldPoster = findPoster(dir);
+  const filename = `poster-${newId()}.jpg`;
   try {
-    await saveNormalizedImage(req.file, path.join(dir, '_poster-new.jpg'));
+    await saveNormalizedImage(req.file, path.join(dir, filename));
   } catch (err) {
     return res.status(400).json({ error: `Couldn't read that poster image (${err.message})` });
   }
-
-  const existingPoster = findPoster(dir);
-  if (existingPoster) fs.unlinkSync(path.join(dir, existingPoster));
-  fs.renameSync(path.join(dir, '_poster-new.jpg'), path.join(dir, 'poster.jpg'));
+  if (oldPoster) fs.unlinkSync(path.join(dir, oldPoster));
 
   writeManifest();
   res.json({ ok: true });
@@ -342,7 +366,11 @@ app.post('/api/events/:category/:slug/aftermovie', videoUpload.single('video'), 
     return res.status(404).json({ error: 'Event not found' });
   }
 
-  const tmpVideo = path.join(dir, '_aftermovie-new.mp4');
+  // Encode in the temp folder, then move in under a brand-new name and delete the old film
+  const id = newId();
+  const videoName = `aftermovie-${id}.mp4`;
+  const posterName = `aftermovie-poster-${id}.jpg`;
+  const tmpVideo = `${req.file.path}-encoded.mp4`;
   const tmpFrame = `${req.file.path}-frame.jpg`;
   try {
     await runFfmpeg([
@@ -361,8 +389,10 @@ app.post('/api/events/:category/:slug/aftermovie', videoUpload.single('video'), 
 
     await runFfmpeg(['-ss', '2', '-i', tmpVideo, '-frames:v', '1', '-q:v', '2', tmpFrame]);
     const { width, height } = await sharp(tmpFrame).metadata();
-    await saveNormalizedImage({ path: tmpFrame, originalname: 'frame.jpg' }, path.join(dir, 'aftermovie-poster.jpg'), 1920);
-    fs.renameSync(tmpVideo, path.join(dir, 'aftermovie.mp4'));
+    await saveNormalizedImage({ path: tmpFrame, originalname: 'frame.jpg' }, path.join(dir, posterName), 1920);
+    fs.copyFileSync(tmpVideo, path.join(dir, videoName));
+    removeMatching(dir, AFTERMOVIE_FILE, videoName);
+    removeMatching(dir, AFTERMOVIE_POSTER_FILE, posterName);
 
     const details = readEventDetailsRaw(category, slug);
     details.aftermovieOrientation = height > width ? 'portrait' : 'landscape';
@@ -376,7 +406,7 @@ app.post('/api/events/:category/:slug/aftermovie', videoUpload.single('video'), 
   }
 
   writeManifest();
-  res.json({ ok: true, size: fs.statSync(path.join(dir, 'aftermovie.mp4')).size });
+  res.json({ ok: true, size: fs.statSync(path.join(dir, videoName)).size });
 });
 
 app.delete('/api/events/:category/:slug/aftermovie', (req, res) => {
@@ -384,10 +414,8 @@ app.delete('/api/events/:category/:slug/aftermovie', (req, res) => {
   if (!isValidCategory(category)) return res.status(400).json({ error: 'Invalid category' });
 
   const dir = eventDir(category, slug);
-  for (const file of ['aftermovie.mp4', 'aftermovie-poster.jpg']) {
-    const p = path.join(dir, file);
-    if (fs.existsSync(p)) fs.unlinkSync(p);
-  }
+  removeMatching(dir, AFTERMOVIE_FILE);
+  removeMatching(dir, AFTERMOVIE_POSTER_FILE);
 
   const details = readEventDetailsRaw(category, slug);
   if (details) {
@@ -400,8 +428,8 @@ app.delete('/api/events/:category/:slug/aftermovie', (req, res) => {
 });
 
 // ── Events: gallery photos ───────────────────────────────────────
-// Each photo is saved twice: 1600px for the lightbox, 600px for the grid.
-// Files are numbered 001.jpg, 002.jpg… in upload order.
+// Each photo is saved twice: 1600px for the lightbox, 600px for the grid, under a new
+// unique name, and appended to gallery/order.json.
 app.post('/api/events/:category/:slug/gallery', upload.array('photos', 60), async (req, res) => {
   const { category, slug } = req.params;
   if (!isValidCategory(category)) return res.status(400).json({ error: 'Invalid category' });
@@ -418,22 +446,21 @@ app.post('/api/events/:category/:slug/gallery', upload.array('photos', 60), asyn
   const thumbsDir = path.join(galleryDir, 'thumbs');
   fs.mkdirSync(thumbsDir, { recursive: true });
 
-  const existing = fs.readdirSync(galleryDir).filter((f) => /^\d+\.jpg$/.test(f)).map((f) => parseInt(f, 10));
-  let next = existing.length ? Math.max(...existing) + 1 : 1;
-
+  const order = readGalleryOrder(galleryDir);
   const failed = [];
   for (const file of files) {
-    const filename = `${String(next).padStart(3, '0')}.jpg`;
+    const filename = `${newId()}.jpg`;
     try {
       await saveNormalizedImage(file, path.join(galleryDir, filename), 1600);
       await sharp(path.join(galleryDir, filename)).resize({ width: 600 }).jpeg({ quality: 80 }).toFile(path.join(thumbsDir, filename));
-      next += 1;
+      order.push(filename);
     } catch (err) {
       failed.push(file.originalname);
       if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
     }
   }
 
+  writeGalleryOrder(galleryDir, order);
   writeManifest();
   res.json({ ok: true, added: files.length - failed.length, failed });
 });
@@ -441,15 +468,127 @@ app.post('/api/events/:category/:slug/gallery', upload.array('photos', 60), asyn
 app.delete('/api/events/:category/:slug/gallery/:file', (req, res) => {
   const { category, slug, file } = req.params;
   if (!isValidCategory(category)) return res.status(400).json({ error: 'Invalid category' });
-  if (!/^\d+\.jpg$/.test(file)) return res.status(400).json({ error: 'Invalid photo' });
+  if (!PHOTO_FILE.test(file)) return res.status(400).json({ error: 'Invalid photo' });
 
-  const galleryDir = path.join(eventDir(category, slug), 'gallery');
-  for (const p of [path.join(galleryDir, file), path.join(galleryDir, 'thumbs', file)]) {
-    if (fs.existsSync(p)) fs.unlinkSync(p);
-  }
+  removeGalleryPhotos(path.join(eventDir(category, slug), 'gallery'), [file]);
 
   writeManifest();
   res.json({ ok: true });
+});
+
+function removeGalleryPhotos(galleryDir, files) {
+  for (const file of files) {
+    for (const p of [path.join(galleryDir, file), path.join(galleryDir, 'thumbs', file)]) {
+      if (fs.existsSync(p)) fs.unlinkSync(p);
+    }
+  }
+  if (fs.existsSync(galleryDir)) {
+    const removed = new Set(files);
+    writeGalleryOrder(galleryDir, readGalleryOrder(galleryDir).filter((f) => !removed.has(f)));
+  }
+}
+
+app.put('/api/events/:category/:slug/gallery/order', (req, res) => {
+  const { category, slug } = req.params;
+  if (!isValidCategory(category)) return res.status(400).json({ error: 'Invalid category' });
+
+  const galleryDir = path.join(eventDir(category, slug), 'gallery');
+  const existing = readGalleryOrder(galleryDir);
+  const order = Array.isArray(req.body.files) ? req.body.files : [];
+
+  // Must be exactly the current set of photos, just reordered
+  if (order.length !== existing.length || [...order].sort().join() !== [...existing].sort().join()) {
+    return res.status(400).json({ error: 'Photo list is out of date — refresh and try again' });
+  }
+
+  writeGalleryOrder(galleryDir, order);
+  writeManifest();
+  res.json({ ok: true });
+});
+
+app.post('/api/events/:category/:slug/gallery/delete', (req, res) => {
+  const { category, slug } = req.params;
+  if (!isValidCategory(category)) return res.status(400).json({ error: 'Invalid category' });
+
+  const files = (Array.isArray(req.body.files) ? req.body.files : []).filter((f) => PHOTO_FILE.test(f));
+  const galleryDir = path.join(eventDir(category, slug), 'gallery');
+  removeGalleryPhotos(galleryDir, files);
+
+  writeManifest();
+  res.json({ ok: true, removed: files.length });
+});
+
+// ── Events: lineup edit/reorder + headshot replace ───────────────
+app.put('/api/events/:category/:slug/lineup', (req, res) => {
+  const { category, slug } = req.params;
+  if (!isValidCategory(category)) return res.status(400).json({ error: 'Invalid category' });
+
+  const details = readEventDetailsRaw(category, slug);
+  if (!details) return res.status(404).json({ error: 'Event not found' });
+  if (!Array.isArray(req.body)) return res.status(400).json({ error: 'Expected a list of artists' });
+
+  // Only keep photo paths that already belong to this event's lineup
+  const knownPhotos = new Set((details.lineup || []).map((a) => a.photo).filter(Boolean));
+  const lineup = req.body
+    .map((a) => ({ name: String(a.name || '').trim(), photo: knownPhotos.has(a.photo) ? a.photo : null }))
+    .filter((a) => a.name);
+
+  // Delete headshots for artists that were removed
+  const kept = new Set(lineup.map((a) => a.photo).filter(Boolean));
+  for (const photo of knownPhotos) {
+    if (!kept.has(photo)) {
+      const p = path.join(eventDir(category, slug), photo);
+      if (fs.existsSync(p)) fs.unlinkSync(p);
+    }
+  }
+
+  details.lineup = lineup;
+  writeEventDetailsRaw(category, slug, details);
+  writeManifest();
+  res.json({ ok: true });
+});
+
+app.post('/api/events/:category/:slug/lineup/:index/photo', upload.single('photo'), async (req, res) => {
+  const { category, slug, index } = req.params;
+  if (!isValidCategory(category)) return res.status(400).json({ error: 'Invalid category' });
+  if (!req.file) return res.status(400).json({ error: 'Photo is required' });
+
+  const details = readEventDetailsRaw(category, slug);
+  const artist = details && (details.lineup || [])[Number(index)];
+  if (!artist) {
+    fs.unlinkSync(req.file.path);
+    return res.status(404).json({ error: 'Artist not found' });
+  }
+
+  const lineupDir = path.join(eventDir(category, slug), 'lineup');
+  fs.mkdirSync(lineupDir, { recursive: true });
+  // Unique name per upload so browsers don't show the old cached headshot
+  const filename = `${slugify(artist.name) || 'artist'}-${Date.now().toString(36)}.jpg`;
+  try {
+    await saveNormalizedImage(req.file, path.join(lineupDir, filename));
+  } catch (err) {
+    return res.status(400).json({ error: `Couldn't read that photo (${err.message})` });
+  }
+
+  if (artist.photo) {
+    const old = path.join(eventDir(category, slug), artist.photo);
+    if (fs.existsSync(old)) fs.unlinkSync(old);
+  }
+  artist.photo = `lineup/${filename}`;
+  writeEventDetailsRaw(category, slug, details);
+  writeManifest();
+  res.json({ ok: true });
+});
+
+// ── Site settings ────────────────────────────────────────────────
+app.get('/api/site', (req, res) => {
+  res.json(readSite());
+});
+
+app.put('/api/site', (req, res) => {
+  const site = writeSite(req.body || {});
+  writeManifest(); // rebuilds every page with the new links/text
+  res.json({ ok: true, site });
 });
 
 // ── Events: move between categories ───────────────────────────────
