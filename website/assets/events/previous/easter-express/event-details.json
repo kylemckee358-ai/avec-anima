@@ -7,10 +7,26 @@
   "ticketLink": null,
   "description": "Easter Sunday at The Railway — Paz b2b Jaime Craig, PK, Hamo, Yeardos, and Connor Heath running the night through to 3am.",
   "lineup": [
-    { "name": "Paz b2b Jaime Craig", "photo": null },
-    { "name": "PK", "photo": null },
-    { "name": "Hamo", "photo": null },
-    { "name": "Yeardos", "photo": null },
-    { "name": "Connor Heath", "photo": null }
-  ]
+    {
+      "name": "Paz b2b Jaime Craig",
+      "photo": null
+    },
+    {
+      "name": "PK",
+      "photo": null
+    },
+    {
+      "name": "Hamo",
+      "photo": null
+    },
+    {
+      "name": "Yeardos",
+      "photo": null
+    },
+    {
+      "name": "Connor Heath",
+      "photo": null
+    }
+  ],
+  "aftermovieOrientation": "portrait"
 }

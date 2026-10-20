@@ -60,6 +60,7 @@ function renderEventCard(event) {
           </div>
           <div class="field"><label>Ticket Link</label><input type="text" name="ticketLink" value="${escapeAttr(event.ticketLink)}"></div>
           <div class="field"><label>Description</label><textarea name="description">${event.description || ''}</textarea></div>
+          <div class="field"><label>Full-Quality Photos (Google Drive link)</label><input type="text" name="driveLink" value="${escapeAttr(event.driveLink)}" placeholder="https://drive.google.com/drive/folders/..."></div>
           <button type="submit" class="btn btn--solid btn--small">Save Changes</button>
         </form>
 
@@ -81,7 +82,57 @@ function renderEventCard(event) {
             <button type="submit" class="btn btn--outline btn--small">Upload</button>
           </form>
         </div>
+
+        ${renderGalleryAdmin(event)}
       </div>
+    </div>
+  `;
+}
+
+const ADMIN_LABEL_STYLE = 'display:block; font-size:11px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--text-secondary); margin-bottom:8px;';
+
+// After movie + gallery photos for the Gallery & After Movies page
+function renderGalleryAdmin(event) {
+  const gallery = event.gallery || [];
+  const aftermovie = event.aftermovie
+    ? `
+      <div class="admin-aftermovie">
+        <video src="${event.aftermovie}" poster="${event.aftermoviePoster || ''}" controls preload="none" playsinline></video>
+        <button type="button" class="btn btn--danger btn--small" data-action="remove-aftermovie">Remove After Movie</button>
+      </div>
+    `
+    : '<p class="admin-note">No after movie yet.</p>';
+
+  const photos = gallery.length
+    ? `<div class="admin-gallery-grid">${gallery.map((photo) => `
+        <div class="admin-gallery-thumb">
+          <img src="${photo.thumb}" alt="" loading="lazy">
+          <button type="button" data-action="remove-photo" data-file="${photo.src.split('/').pop()}" title="Remove">&times;</button>
+        </div>
+      `).join('')}</div>`
+    : '<p class="admin-note">No gallery photos yet.</p>';
+
+  return `
+    <div style="margin-top: 24px;">
+      <label style="${ADMIN_LABEL_STYLE}">After Movie</label>
+      ${aftermovie}
+      <form class="aftermovie-form" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top: 8px;">
+        <input type="file" name="video" accept="video/*" required>
+        <button type="submit" class="btn btn--outline btn--small">${event.aftermovie ? 'Replace' : 'Upload'}</button>
+      </form>
+      <p class="admin-note" style="margin-top: 6px;">Any size or format — it's compressed to web-ready 1080p automatically. Takes a minute or two.</p>
+      <p class="admin-status"></p>
+    </div>
+
+    <div style="margin-top: 24px;">
+      <label style="${ADMIN_LABEL_STYLE}">Gallery Photos (${gallery.length})</label>
+      ${photos}
+      <form class="gallery-form" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top: 8px;">
+        <input type="file" name="photos" accept="image/*" multiple required>
+        <button type="submit" class="btn btn--outline btn--small">Add Photos</button>
+      </form>
+      <p class="admin-note" style="margin-top: 6px;">Select several at once (up to 60). They're resized for the web — put the full-quality originals in the Google Drive folder above.</p>
+      <p class="admin-status"></p>
     </div>
   `;
 }
@@ -137,6 +188,19 @@ function wireEventListDelegation(container) {
       return;
     }
 
+    if (btn.dataset.action === 'remove-aftermovie') {
+      if (!confirm('Remove this after movie?')) return;
+      await fetch(`/api/events/${category}/${slug}/aftermovie`, { method: 'DELETE' });
+      loadEvents();
+      return;
+    }
+
+    if (btn.dataset.action === 'remove-photo') {
+      await fetch(`/api/events/${category}/${slug}/gallery/${btn.dataset.file}`, { method: 'DELETE' });
+      loadEvents();
+      return;
+    }
+
     if (btn.dataset.action === 'remove-artist') {
       await fetch(`/api/events/${category}/${slug}/lineup/${btn.dataset.index}`, { method: 'DELETE' });
       loadEvents();
@@ -162,6 +226,31 @@ function wireEventListDelegation(container) {
 
     if (form.classList.contains('add-artist-form')) {
       await fetch(`/api/events/${category}/${slug}/lineup`, { method: 'POST', body: new FormData(form) });
+      loadEvents();
+      return;
+    }
+
+    if (form.classList.contains('aftermovie-form') || form.classList.contains('gallery-form')) {
+      const isVideo = form.classList.contains('aftermovie-form');
+      const status = form.parentElement.querySelector('.admin-status');
+      const button = form.querySelector('button[type="submit"]');
+      button.disabled = true;
+      // Set directly — setStatus auto-clears success messages, and this one must stay up while ffmpeg runs
+      status.className = 'admin-status';
+      status.textContent = isVideo ? 'Uploading and compressing… this can take a minute or two.' : 'Uploading photos…';
+
+      const endpoint = isVideo ? 'aftermovie' : 'gallery';
+      const res = await fetch(`/api/events/${category}/${slug}/${endpoint}`, { method: 'POST', body: new FormData(form) });
+      const result = await res.json().catch(() => ({}));
+      button.disabled = false;
+
+      if (!res.ok) {
+        setStatus(status, result.error || 'Upload failed', true);
+        return;
+      }
+      if (result.failed && result.failed.length) {
+        alert(`Couldn't read: ${result.failed.join(', ')}`);
+      }
       loadEvents();
       return;
     }

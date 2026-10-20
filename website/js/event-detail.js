@@ -27,6 +27,10 @@ function renderEventDetail(event, isPrevious) {
     : `<a href="${event.ticketLink}" target="_blank" rel="noopener" class="btn btn--solid">Buy Tickets</a>`;
 
   const lineupCards = (event.lineup || []).map(renderArtistCard).join('');
+  const hasMedia = event.aftermovie || (event.gallery && event.gallery.length);
+  const mediaLink = hasMedia
+    ? `<a href="gallery.html#${encodeURIComponent(event.slug)}" class="btn btn--outline">${event.aftermovie ? 'Photos &amp; After Movie' : 'Photos'}</a>`
+    : '';
   const venueName = event.location.split(',')[0];
 
   return `
@@ -42,6 +46,7 @@ function renderEventDetail(event, isPrevious) {
       </div>
       <aside class="event-detail__sidebar">
         ${cta}
+        ${mediaLink}
         <div class="detail-field">
           <span class="detail-field__label">Date</span>
           <span class="detail-field__value">${formatFullDate(event.date)}</span>

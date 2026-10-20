@@ -29,6 +29,10 @@
           "photo": null
         }
       ],
+      "driveLink": "",
+      "aftermovie": "assets/events/previous/old-senior-race-day/aftermovie.mp4",
+      "aftermoviePoster": "assets/events/previous/old-senior-race-day/aftermovie-poster.jpg",
+      "gallery": [],
       "page": "events/old-senior-race-day.html"
     },
     {
@@ -59,6 +63,9 @@
           "photo": null
         }
       ],
+      "aftermovie": null,
+      "aftermoviePoster": null,
+      "gallery": [],
       "page": "events/boxing-day.html"
     },
     {
@@ -93,6 +100,9 @@
           "photo": null
         }
       ],
+      "aftermovie": null,
+      "aftermoviePoster": null,
+      "gallery": [],
       "page": "events/into-the-glen.html"
     },
     {
@@ -131,6 +141,9 @@
           "photo": null
         }
       ],
+      "aftermovie": null,
+      "aftermoviePoster": null,
+      "gallery": [],
       "page": "events/jungle-world.html"
     },
     {
@@ -165,6 +178,9 @@
           "photo": null
         }
       ],
+      "aftermovie": null,
+      "aftermoviePoster": null,
+      "gallery": [],
       "page": "events/the-night-train.html"
     },
     {
@@ -191,6 +207,9 @@
           "photo": null
         }
       ],
+      "aftermovie": null,
+      "aftermoviePoster": null,
+      "gallery": [],
       "page": "events/one-bomb.html"
     },
     {
@@ -221,6 +240,10 @@
           "photo": null
         }
       ],
+      "aftermovieOrientation": "portrait",
+      "aftermovie": "assets/events/previous/sounds-of-summer/aftermovie.mp4",
+      "aftermoviePoster": "assets/events/previous/sounds-of-summer/aftermovie-poster.jpg",
+      "gallery": [],
       "page": "events/sounds-of-summer.html"
     },
     {
@@ -259,6 +282,10 @@
           "photo": null
         }
       ],
+      "aftermovieOrientation": "portrait",
+      "aftermovie": "assets/events/previous/house-treat/aftermovie.mp4",
+      "aftermoviePoster": "assets/events/previous/house-treat/aftermovie-poster.jpg",
+      "gallery": [],
       "page": "events/house-treat.html"
     },
     {
@@ -293,6 +320,10 @@
           "photo": null
         }
       ],
+      "aftermovieOrientation": "portrait",
+      "aftermovie": "assets/events/previous/easter-express/aftermovie.mp4",
+      "aftermoviePoster": "assets/events/previous/easter-express/aftermovie-poster.jpg",
+      "gallery": [],
       "page": "events/easter-express.html"
     },
     {
@@ -327,6 +358,9 @@
           "photo": null
         }
       ],
+      "aftermovie": "assets/events/previous/off-kilter/aftermovie.mp4",
+      "aftermoviePoster": "assets/events/previous/off-kilter/aftermovie-poster.jpg",
+      "gallery": [],
       "page": "events/off-kilter.html"
     }
   ]
