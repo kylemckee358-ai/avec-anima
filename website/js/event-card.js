@@ -17,7 +17,7 @@ function formatDateMeta(dateStr, startTime, endTime) {
 function renderEventCard(event, isPrevious) {
   const badge = formatDateBadge(event.date);
   const category = isPrevious ? 'previous' : 'upcoming';
-  const detailHref = `event.html?category=${category}&slug=${encodeURIComponent(event.slug)}`;
+  const detailHref = event.page || `event.html?category=${category}&slug=${encodeURIComponent(event.slug)}`;
   const actions = isPrevious
     ? `<a href="${detailHref}" class="btn btn--muted">Past Event</a>`
     : `
@@ -32,7 +32,7 @@ function renderEventCard(event, isPrevious) {
     <div class="event-card${isPrevious ? ' event-card--previous' : ''}">
       <a class="event-card__link" href="${detailHref}">
         <div class="event-card__poster">
-          <img src="${event.poster}" alt="${event.name}" loading="lazy">
+          <img src="${event.poster}" alt="${event.name} poster" loading="lazy">
           <div class="date-badge">
             <span class="date-badge__month">${badge.month}</span>
             <span class="date-badge__day">${badge.day}</span>
@@ -54,4 +54,9 @@ async function loadEventsManifest() {
   const res = await fetch('assets/events/manifest.json');
   if (!res.ok) throw new Error('Failed to load events manifest');
   return res.json();
+}
+
+// Lets lib/seo.js reuse the card renderer when pre-rendering pages in Node
+if (typeof module !== 'undefined') {
+  module.exports = { renderEventCard };
 }

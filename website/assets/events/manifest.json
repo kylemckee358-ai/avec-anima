@@ -28,7 +28,8 @@
           "name": "John Bolton (Vinyl Set)",
           "photo": null
         }
-      ]
+      ],
+      "page": "events/old-senior-race-day.html"
     },
     {
       "slug": "boxing-day",
@@ -57,7 +58,8 @@
           "name": "Allan Vannin (Vinyl Only Set)",
           "photo": null
         }
-      ]
+      ],
+      "page": "events/boxing-day.html"
     },
     {
       "slug": "into-the-glen",
@@ -90,7 +92,8 @@
           "name": "Hamo",
           "photo": null
         }
-      ]
+      ],
+      "page": "events/into-the-glen.html"
     },
     {
       "slug": "jungle-world",
@@ -127,7 +130,8 @@
           "name": "Burg",
           "photo": null
         }
-      ]
+      ],
+      "page": "events/jungle-world.html"
     },
     {
       "slug": "the-night-train",
@@ -160,7 +164,8 @@
           "name": "Dunner",
           "photo": null
         }
-      ]
+      ],
+      "page": "events/the-night-train.html"
     },
     {
       "slug": "one-bomb",
@@ -185,7 +190,8 @@
           "name": "Connor Hislop",
           "photo": null
         }
-      ]
+      ],
+      "page": "events/one-bomb.html"
     },
     {
       "slug": "sounds-of-summer",
@@ -214,7 +220,8 @@
           "name": "Tom Doyle",
           "photo": null
         }
-      ]
+      ],
+      "page": "events/sounds-of-summer.html"
     },
     {
       "slug": "house-treat",
@@ -251,7 +258,8 @@
           "name": "Fionn",
           "photo": null
         }
-      ]
+      ],
+      "page": "events/house-treat.html"
     },
     {
       "slug": "easter-express",
@@ -284,7 +292,8 @@
           "name": "Connor Heath",
           "photo": null
         }
-      ]
+      ],
+      "page": "events/easter-express.html"
     },
     {
       "slug": "off-kilter",
@@ -317,7 +326,8 @@
           "name": "Fionn",
           "photo": null
         }
-      ]
+      ],
+      "page": "events/off-kilter.html"
     }
   ]
 }

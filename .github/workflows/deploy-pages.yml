@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
     paths:
+      - "lib/**"
+      - "build-events.js"
       - "website/**"
       - "!website/admin.html"
       - "!website/js/admin.js"
@@ -27,6 +29,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      # Regenerates manifest, event pages, sitemap.xml and llms.txt (no npm install needed)
+      - name: Build event pages + SEO files
+        run: node build-events.js
 
       - name: Build public site folder (exclude admin panel)
         run: |

@@ -33,7 +33,7 @@ function renderEventDetail(event, isPrevious) {
     <div class="event-detail${isPrevious ? ' event-detail--previous' : ''}">
       <div>
         <div class="event-detail__poster">
-          <img src="${event.poster}" alt="${event.name}">
+          <img src="${event.poster}" alt="${event.name} poster">
         </div>
         <div class="event-detail__main">
           <h1 class="event-detail__name">${event.name}</h1>
@@ -77,7 +77,7 @@ function renderEventDetail(event, isPrevious) {
   `;
 }
 
-(async function () {
+if (typeof document !== 'undefined') (async function () {
   const root = document.getElementById('event-root');
   const params = new URLSearchParams(window.location.search);
   const requestedCategory = params.get('category');
@@ -110,6 +110,12 @@ function renderEventDetail(event, isPrevious) {
       return;
     }
 
+    // Every event has a pre-rendered page — send old event.html links there
+    if (event.page) {
+      window.location.replace(event.page);
+      return;
+    }
+
     document.title = `${event.name} — Avec Anima`;
     root.innerHTML = renderEventDetail(event, isPrevious);
   } catch (err) {
@@ -117,3 +123,8 @@ function renderEventDetail(event, isPrevious) {
     console.error(err);
   }
 })();
+
+// Lets lib/seo.js reuse the detail renderer when pre-rendering event pages in Node
+if (typeof module !== 'undefined') {
+  module.exports = { renderEventDetail };
+}

@@ -1,0 +1,28 @@
+# Avec Anima
+
+> Avec Anima is an underground house and tech house night on the Isle of Man, running events at venues across the island — from Douglas clubs to one-off nights in the glens.
+
+Contact: hello@avecanima.com
+
+## Pages
+
+- [Home](https://kylemckee358-ai.github.io/avec-anima/): Next upcoming events, featured live set and merch
+- [Events](https://kylemckee358-ai.github.io/avec-anima/events.html): Full list of upcoming and previous events
+- [Music](https://kylemckee358-ai.github.io/avec-anima/music.html): Live sets on YouTube and mixes on SoundCloud
+
+## Upcoming events
+
+- None announced yet — check the events page.
+
+## Previous events
+
+- [Avec Anima: Old Senior Race Day](https://kylemckee358-ai.github.io/avec-anima/events/old-senior-race-day.html): Friday, 5 June 2026, 21:00–02:00, Mad Jacks, Douglas, Isle of Man. Lineup: Scon, Burg, Yeardos, John Bolton (Vinyl Set).
+- [Avec Anima: Boxing Day](https://kylemckee358-ai.github.io/avec-anima/events/boxing-day.html): Friday, 26 December 2025, 19:30–03:00, The Conister Arms, Onchan, Isle of Man. Lineup: Burg, Fionn, Yeardos, Allan Vannin (Vinyl Only Set).
+- [Avec Anima: Into The Glen](https://kylemckee358-ai.github.io/avec-anima/events/into-the-glen.html): Saturday, 1 November 2025, 19:00–01:00, Glen Mooar Cottage Retreat, Sulby Valley, Isle of Man. Lineup: Yeardos, Burg, Fionn, Allan Vannin, Hamo.
+- [Avec Anima: Jungle World](https://kylemckee358-ai.github.io/avec-anima/events/jungle-world.html): Friday, 27 June 2025, 14:15–23:30, Ballaglass Glen, Isle of Man. Lineup: Isle Of Grooves, Kyle McKee, Yeardos, Dunner, Allan Vannin, Burg.
+- [Avec Anima: The Night Train](https://kylemckee358-ai.github.io/avec-anima/events/the-night-train.html): Saturday, 19 April 2025, 20:00–02:30, The Railway, Douglas, Isle of Man. Lineup: Josh Dolton, PK, Allan Vannin, Yeardos, Dunner.
+- [Avec Anima: One Bomb](https://kylemckee358-ai.github.io/avec-anima/events/one-bomb.html): Thursday, 26 December 2024, 21:00–00:00, Mrs Yang's, Douglas, Isle of Man. Lineup: Yeardos, Burg, Connor Hislop.
+- [Avec Anima: Sounds Of Summer](https://kylemckee358-ai.github.io/avec-anima/events/sounds-of-summer.html): Friday, 26 July 2024, 20:30–02:00, Bar George, Douglas, Isle of Man. Lineup: Ben Jones (Before Records/Locus), Burg, Yeardos, Tom Doyle.
+- [Avec Anima: House Retreat](https://kylemckee358-ai.github.io/avec-anima/events/house-treat.html): Friday, 28 June 2024, 12:30–23:30, Glen Helen, Isle of Man. Lineup: Allan Vannin, Harry Adamson, Hamo, Yeardos, Burg, Fionn.
+- [Avec Anima: Easter Express](https://kylemckee358-ai.github.io/avec-anima/events/easter-express.html): Sunday, 31 March 2024, 21:00–03:00, The Railway, Douglas, Isle of Man. Lineup: Paz b2b Jaime Craig, PK, Hamo, Yeardos, Connor Heath.
+- [Avec Anima: Off Kilter](https://kylemckee358-ai.github.io/avec-anima/events/off-kilter.html): Tuesday, 26 December 2023, 21:00–02:00, Mrs Yang's, Douglas, Isle of Man. Lineup: Joe Matthews, Paz, Yeardos, Wints, Fionn.

@@ -3,8 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Avec Anima</title>
-  <meta name="description" content="Avec Anima — underground house &amp; tech house nights on the Isle of Man.">
+  <!-- seo -->
+  <title>Avec Anima — Underground House &amp; Tech House Nights, Isle of Man</title>
+  <meta name="description" content="Avec Anima runs underground house and tech house nights on the Isle of Man. Upcoming events, tickets, live sets and mixes.">
+  <link rel="canonical" href="https://kylemckee358-ai.github.io/avec-anima/">
+  <meta name="theme-color" content="#0A0A0A">
+  <meta property="og:site_name" content="Avec Anima">
+  <meta property="og:locale" content="en_GB">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Avec Anima — Underground House &amp; Tech House Nights, Isle of Man">
+  <meta property="og:description" content="Avec Anima runs underground house and tech house nights on the Isle of Man. Upcoming events, tickets, live sets and mixes.">
+  <meta property="og:url" content="https://kylemckee358-ai.github.io/avec-anima/">
+  <meta property="og:image" content="https://kylemckee358-ai.github.io/avec-anima/assets/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Avec Anima — Underground House &amp; Tech House Nights, Isle of Man">
+  <meta name="twitter:description" content="Avec Anima runs underground house and tech house nights on the Isle of Man. Upcoming events, tickets, live sets and mixes.">
+  <meta name="twitter:image" content="https://kylemckee358-ai.github.io/avec-anima/assets/og-image.jpg">
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": "https://kylemckee358-ai.github.io/avec-anima/#organization",
+  "name": "Avec Anima",
+  "url": "https://kylemckee358-ai.github.io/avec-anima/",
+  "logo": "https://kylemckee358-ai.github.io/avec-anima/assets/logo.png",
+  "email": "hello@avecanima.com",
+  "description": "Avec Anima is an underground house and tech house night on the Isle of Man, running events at venues across the island — from Douglas clubs to one-off nights in the glens.",
+  "areaServed": {
+    "@type": "Place",
+    "name": "Isle of Man"
+  }
+}</script>
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Avec Anima",
+  "url": "https://kylemckee358-ai.github.io/avec-anima/",
+  "publisher": {
+    "@id": "https://kylemckee358-ai.github.io/avec-anima/#organization"
+  }
+}</script>
+  <!-- /seo -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -31,7 +69,7 @@
   </nav>
 
   <header class="hero container">
-    <img class="hero__logo" src="assets/logo.png" alt="Avec Anima">
+    <h1 class="hero__title"><img class="hero__logo" src="assets/logo.png" alt="Avec Anima"></h1>
     <p class="hero__tagline">Underground house &amp; tech house nights on the Isle of Man. No two are the same.</p>
     <div class="hero__actions">
       <a href="events.html" class="btn btn--solid">See All Events</a>
@@ -44,7 +82,9 @@
       <a href="events.html" class="btn btn--outline">All Events</a>
     </div>
     <div class="event-grid" id="home-upcoming-events">
-      <p class="events-empty">Loading events&hellip;</p>
+      <!-- prerender:home-upcoming-events -->
+      <p class="events-empty">No upcoming events right now — check back soon.</p>
+      <!-- /prerender -->
     </div>
   </section>
 
