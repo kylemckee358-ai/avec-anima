@@ -207,8 +207,9 @@
           "photo": null
         }
       ],
-      "aftermovie": null,
-      "aftermoviePoster": null,
+      "aftermovieOrientation": "landscape",
+      "aftermovie": "assets/events/previous/one-bomb/aftermovie.mp4",
+      "aftermoviePoster": "assets/events/previous/one-bomb/aftermovie-poster.jpg",
       "gallery": [],
       "page": "events/one-bomb.html"
     },
