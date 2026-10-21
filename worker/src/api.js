@@ -68,6 +68,7 @@ function uniqueSlug(snap, category, baseSlug) {
 
 // Runs a change against the latest commit, retrying if someone else saved in between
 // (with a short random wait, so saves landing together spread out instead of colliding again).
+// Each attempt is about 7 GitHub requests, so 5 attempts stay under the 50-request limit.
 // fn(snap) returns { changes: Map, message, result }.
 async function save(env, user, fn) {
   const github = new GitHub(env);
@@ -79,7 +80,7 @@ async function save(env, user, fn) {
       await github.commit(snap, changes, `${message}\n\nSaved in the online admin${user ? ` by ${user}` : ''}`);
       return result;
     } catch (err) {
-      if (!(err instanceof Conflict) || attempt === 6) throw err;
+      if (!(err instanceof Conflict) || attempt === 5) throw err;
       await new Promise((resolve) => setTimeout(resolve, 300 * attempt + Math.random() * 700));
     }
   }

@@ -973,5 +973,7 @@ wireEventsTab();
 wireGalleryTab();
 wireMusicTab();
 wireSettingsTab();
-loadEvents().catch((err) => toast(`Couldn't load events — is node server.js running? (${err.message})`, true));
+loadEvents().catch((err) => toast(siteMode === 'online'
+  ? `Couldn't load events (${err.message}) — try reloading the page.`
+  : `Couldn't load events — is node server.js running? (${err.message})`, true));
 loadVideos().catch(() => {});

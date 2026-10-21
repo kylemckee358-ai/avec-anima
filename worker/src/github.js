@@ -1,5 +1,8 @@
 // The repo, read and written through the GitHub API. A Snapshot is the whole file tree at
-// one commit; changes are saved as a single new commit on top of it. If someone else
+// one commit; changes are saved as a single new commit on top of it.
+//
+// Cloudflare's free plan allows 50 outside requests per admin request, so reads are batched:
+// a snapshot is 2 requests, and any number of files are read in 1 (GraphQL). If someone else
 // committed in the meantime (another admin save, or the build adding processed uploads),
 // the save fails with a Conflict and is retried against a fresh snapshot.
 
@@ -38,29 +41,34 @@ export class GitHub {
   }
 
   async snapshot() {
-    const ref = await this.call('GET', `/repos/${this.repo}/git/ref/heads/${this.branch}`);
-    const commit = await this.call('GET', `/repos/${this.repo}/git/commits/${ref.object.sha}`);
-    const tree = await this.call('GET', `/repos/${this.repo}/git/trees/${commit.tree.sha}?recursive=1`);
+    const head = await this.call('GET', `/repos/${this.repo}/commits/${this.branch}`);
+    const treeSha = head.commit.tree.sha;
+    const tree = await this.call('GET', `/repos/${this.repo}/git/trees/${treeSha}?recursive=1`);
     if (tree.truncated) throw new Error('GitHub: repo listing was cut short');
     const files = new Map();
     for (const entry of tree.tree) {
       if (entry.type === 'blob') files.set(entry.path, entry.sha);
     }
-    return new Snapshot(this, ref.object.sha, commit.tree.sha, files);
+    return new Snapshot(this, head.sha, treeSha, files);
   }
 
-  // File contents by blob sha — a sha never changes content, so cache it for good
-  async blobText(sha) {
-    const cacheKey = new Request(`https://blob-cache.internal/${this.repo}/${sha}`);
-    const cache = caches.default;
-    const hit = await cache.match(cacheKey);
-    if (hit) return hit.text();
-
-    const blob = await this.call('GET', `/repos/${this.repo}/git/blobs/${sha}`);
-    const bytes = Uint8Array.from(atob(blob.content.replace(/\n/g, '')), (c) => c.charCodeAt(0));
-    const text = new TextDecoder().decode(bytes);
-    await cache.put(cacheKey, new Response(text, { headers: { 'Cache-Control': 'public, max-age=31536000' } }));
-    return text;
+  // Text of several files at one commit, in a single GraphQL request → Map of path → text
+  async readFiles(commitSha, paths) {
+    if (!paths.length) return new Map();
+    const [owner, name] = this.repo.split('/');
+    const fields = paths
+      .map((p, i) => `f${i}: object(expression: ${JSON.stringify(`${commitSha}:${p}`)}) { ... on Blob { text } }`)
+      .join('\n');
+    const data = await this.call('POST', '/graphql', {
+      query: `query { repository(owner: ${JSON.stringify(owner)}, name: ${JSON.stringify(name)}) { ${fields} } }`,
+    });
+    if (data.errors) throw new Error(`GitHub: ${data.errors[0].message}`);
+    const texts = new Map();
+    paths.forEach((p, i) => {
+      const blob = data.data.repository[`f${i}`];
+      if (blob && typeof blob.text === 'string') texts.set(p, blob.text);
+    });
+    return texts;
   }
 
   // changes: Map of path → new text | null (delete) | { sha } (copy an existing file's content)
@@ -128,9 +136,8 @@ export class Snapshot {
 
   // Loads file contents up front so they can be read synchronously (lib/event-rules.js is sync)
   async load(paths) {
-    await Promise.all(paths.filter((p) => this.files.has(p) && !this.texts.has(p)).map(async (p) => {
-      this.texts.set(p, await this.github.blobText(this.files.get(p)));
-    }));
+    const wanted = [...new Set(paths)].filter((p) => this.files.has(p) && !this.texts.has(p));
+    for (const [p, text] of await this.github.readFiles(this.commitSha, wanted)) this.texts.set(p, text);
   }
 
   // Parsed JSON of a loaded file, or null if it doesn't exist / isn't valid
