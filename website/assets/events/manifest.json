@@ -184,9 +184,8 @@
           "photo": null
         }
       ],
-      "aftermovieOrientation": "landscape",
-      "aftermovie": "assets/events/previous/boxing-day/aftermovie-mvho12x3tw8p.mp4",
-      "aftermoviePoster": "assets/events/previous/boxing-day/aftermovie-poster-mvho12x3tw8p.jpg",
+      "aftermovie": null,
+      "aftermoviePoster": null,
       "gallery": [],
       "page": "events/boxing-day.html"
     },
