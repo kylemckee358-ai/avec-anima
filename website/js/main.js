@@ -7,7 +7,7 @@
     const { upcoming } = await loadEventsManifest();
 
     if (!upcoming.length) {
-      container.innerHTML = '<p class="events-empty">No upcoming events right now — check back soon.</p>';
+      container.innerHTML = renderUpcomingEmpty();
       return;
     }
 

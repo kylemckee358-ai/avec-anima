@@ -50,6 +50,34 @@ function renderEventCard(event, isPrevious) {
   `;
 }
 
+// Shown in place of upcoming cards when nothing is announced (events page + home page).
+// instagramUrl comes from site settings: lib/seo.js passes it at build time, the browser
+// reads it from the footer link the build wrote.
+function renderUpcomingEmpty(instagramUrl) {
+  if (instagramUrl === undefined && typeof document !== 'undefined') {
+    const link = document.querySelector('[data-site-href="instagramUrl"]:not([hidden])');
+    instagramUrl = link ? link.getAttribute('href') : '';
+  }
+
+  return `
+    <div class="next-night">
+      <div class="next-night__poster" aria-hidden="true">
+        <img src="assets/logo.png" alt="">
+        <span>TBA</span>
+      </div>
+      <div class="next-night__body">
+        <p class="section-label">Next Night</p>
+        <h3 class="next-night__title">To Be Announced</h3>
+        <p class="next-night__text">The next Avec Anima night lands on Instagram first &mdash; date, venue, lineup and tickets.</p>
+        <div class="next-night__actions">
+          ${instagramUrl ? `<a href="${instagramUrl}" target="_blank" rel="noopener" class="btn btn--solid">Follow on Instagram</a>` : ''}
+          <a href="gallery.html" class="btn btn--outline">Watch the After Movies</a>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 async function loadEventsManifest() {
   const res = await fetch('assets/events/manifest.json');
   if (!res.ok) throw new Error('Failed to load events manifest');
@@ -58,5 +86,5 @@ async function loadEventsManifest() {
 
 // Lets lib/seo.js reuse the card renderer when pre-rendering pages in Node
 if (typeof module !== 'undefined') {
-  module.exports = { renderEventCard };
+  module.exports = { renderEventCard, renderUpcomingEmpty };
 }

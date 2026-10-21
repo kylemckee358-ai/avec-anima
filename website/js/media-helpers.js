@@ -43,3 +43,8 @@ function renderSoundcloud(data) {
     </div>
   `;
 }
+
+// Lets lib/seo.js build YouTube thumbnail URLs for the Music page banner
+if (typeof module !== 'undefined') {
+  module.exports = { extractYouTubeId };
+}

@@ -8,75 +8,82 @@ function formatFullDate(dateStr) {
   });
 }
 
-function renderArtistCard(artist) {
-  const photo = artist.photo
-    ? `<img src="${artist.photo}" alt="${artist.name}" loading="lazy">`
-    : `<span class="artist-card__na">N/A</span>`;
+// "John Bolton (Vinyl Set)" → name "John Bolton", note "Vinyl Set"
+function splitArtistName(full) {
+  const match = full.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+  return match ? { name: match[1], note: match[2] } : { name: full, note: '' };
+}
+
+function initials(name) {
+  return name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+}
+
+function renderLineupItem(artist) {
+  const { name, note } = splitArtistName(artist.name);
+  const avatar = artist.photo
+    ? `<img src="${artist.photo}" alt="${name}" loading="lazy">`
+    : `<span>${initials(name)}</span>`;
 
   return `
-    <div class="artist-card">
-      <div class="artist-card__photo">${photo}</div>
-      <p class="artist-card__name">${artist.name}</p>
-    </div>
+    <li class="lineup-item">
+      <span class="lineup-item__avatar">${avatar}</span>
+      <span class="lineup-item__text">
+        <span class="lineup-item__name">${name}</span>
+        ${note ? `<span class="lineup-item__note">${note}</span>` : ''}
+      </span>
+    </li>
   `;
 }
 
+// Poster on the left; everything else (name, details, lineup) in one column beside it
 function renderEventDetail(event, isPrevious) {
   const cta = isPrevious
     ? `<span class="btn btn--muted">Past Event</span>`
     : `<a href="${event.ticketLink}" target="_blank" rel="noopener" class="btn btn--solid">Buy Tickets</a>`;
 
-  const lineupCards = (event.lineup || []).map(renderArtistCard).join('');
   const hasMedia = event.aftermovie || (event.gallery && event.gallery.length);
   const mediaLink = hasMedia
     ? `<a href="gallery.html#${encodeURIComponent(event.slug)}" class="btn btn--outline">${event.aftermovie ? 'Photos &amp; After Movie' : 'Photos'}</a>`
     : '';
-  const venueName = event.location.split(',')[0];
+  const lineup = event.lineup || [];
+  const time = event.startTime ? `${event.startTime}${event.endTime ? `&ndash;${event.endTime}` : ''}` : 'TBA';
 
   return `
     <div class="event-detail${isPrevious ? ' event-detail--previous' : ''}">
-      <div>
-        <div class="event-detail__poster">
-          <img src="${event.poster}" alt="${event.name} poster">
-        </div>
-        <div class="event-detail__main">
-          <h1 class="event-detail__name">${event.name}</h1>
-          ${event.description ? `<p class="event-detail__description">${event.description}</p>` : ''}
-        </div>
+      <div class="event-detail__poster">
+        <img src="${event.poster}" alt="${event.name} poster">
       </div>
-      <aside class="event-detail__sidebar">
-        ${cta}
-        ${mediaLink}
-        <div class="detail-field">
-          <span class="detail-field__label">Date</span>
-          <span class="detail-field__value">${formatFullDate(event.date)}</span>
-        </div>
-        <div class="detail-field">
-          <span class="detail-field__label">Time</span>
-          <span class="detail-field__value">${event.startTime}&ndash;${event.endTime}</span>
-        </div>
-        <div class="detail-field">
-          <span class="detail-field__label">Location</span>
-          <span class="detail-field__value">${event.location}</span>
-        </div>
-      </aside>
-    </div>
 
-    ${lineupCards ? `
-      <div class="mt-section">
-        <div class="section-header">
-          <h2 class="section-title" style="font-size: clamp(24px, 3vw, 32px);">Lineup</h2>
-        </div>
-        <div class="artist-grid">${lineupCards}</div>
-      </div>
-    ` : ''}
+      <div class="event-detail__info">
+        <p class="section-label">${isPrevious ? 'Past Event' : 'Upcoming'}</p>
+        <h1 class="event-detail__name">${event.name}</h1>
+        ${event.description ? `<p class="event-detail__description">${event.description}</p>` : ''}
 
-    <div class="mt-section">
-      <div class="section-header">
-        <h2 class="section-title" style="font-size: clamp(24px, 3vw, 32px);">Venue</h2>
-      </div>
-      <div class="venue-block">
-        <span class="venue-block__name">${venueName}</span>
+        <div class="event-detail__card">
+          <div class="detail-field">
+            <span class="detail-field__label">Date</span>
+            <span class="detail-field__value">${formatFullDate(event.date)}</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field__label">Time</span>
+            <span class="detail-field__value">${time}</span>
+          </div>
+          <div class="detail-field detail-field--wide">
+            <span class="detail-field__label">Location</span>
+            <span class="detail-field__value">${event.location}</span>
+          </div>
+          <div class="event-detail__actions">
+            ${cta}
+            ${mediaLink}
+          </div>
+        </div>
+
+        ${lineup.length ? `
+          <div class="event-detail__lineup">
+            <p class="detail-field__label">Lineup</p>
+            <ul class="lineup-list">${lineup.map(renderLineupItem).join('')}</ul>
+          </div>
+        ` : ''}
       </div>
     </div>
   `;

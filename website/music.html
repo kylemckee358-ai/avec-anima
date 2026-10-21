@@ -46,33 +46,47 @@
     </div>
   </nav>
 
-  <header class="section container" style="padding-bottom: 0;">
-    <h1 class="section-title">Watch</h1>
-    <p class="music-row__text" style="max-width: 640px; margin-top: 20px;">
-      <span style="color: var(--text-secondary); font-size: 15px; line-height: 1.7;" data-site-text="musicIntro">Live sets, warehouse highlights, and a look behind the scenes from Avec Anima nights. New uploads on our YouTube channel after every show.</span>
-    </p>
-    <div style="margin-top: 24px;">
-      <a data-site-href="youtubeChannelUrl" target="_blank" rel="noopener" class="btn btn--solid" href="#" hidden>Subscribe on YouTube</a>
+  <header class="page-hero">
+    <div class="page-hero__strip page-hero__strip--wide" aria-hidden="true">
+      <!-- prerender:page-hero-strip -->
+      <img src="https://i.ytimg.com/vi/YWxS3KVgSNU/hqdefault.jpg" alt=""><img src="https://i.ytimg.com/vi/jUi4mFDl-Mg/hqdefault.jpg" alt=""><img src="assets/events/previous/old-senior-race-day/aftermovie-poster.jpg" alt=""><img src="assets/events/previous/one-bomb/aftermovie-poster-mvgwbwioeguy.jpg" alt=""><img src="assets/events/previous/sounds-of-summer/aftermovie-poster-mvgwbwrxfct1.jpg" alt=""><img src="assets/events/previous/house-treat/aftermovie-poster-mvgwbx0ngeaa.jpg" alt="">
+      <!-- /prerender -->
+    </div>
+    <div class="container page-hero__content">
+      <p class="section-label">Live Sets &middot; Mixes</p>
+      <h1 class="section-title page-hero__title">Music</h1>
+      <p class="page-hero__intro" data-site-text="musicIntro">Live sets, warehouse highlights, and a look behind the scenes from Avec Anima nights. New uploads on our YouTube channel after every show.</p>
+      <div class="page-hero__actions">
+        <a data-site-href="youtubeChannelUrl" target="_blank" rel="noopener" class="btn btn--solid" href="#" hidden>Subscribe on YouTube</a>
+        <a data-site-href="soundcloudProfileUrl" target="_blank" rel="noopener" class="btn btn--outline" href="#" hidden>Follow on SoundCloud</a>
+      </div>
     </div>
   </header>
 
   <section class="section container">
+    <div class="section-header">
+      <div>
+        <p class="section-label">Live Sets</p>
+        <h2 class="section-title section-title--md">Watch</h2>
+      </div>
+    </div>
     <div id="featured-video">
       <p class="events-empty">Loading videos&hellip;</p>
     </div>
-    <div class="video-grid" id="video-grid"></div>
+    <div id="more-videos"></div>
   </section>
 
-  <section class="section container" style="border-top: 1px solid var(--border);">
+  <section class="section container music-listen">
     <div class="section-header">
-      <h2 class="section-title" style="font-size: clamp(32px, 5vw, 56px);">SoundCloud</h2>
+      <div>
+        <p class="section-label">Mixes</p>
+        <h2 class="section-title section-title--md">Listen</h2>
+      </div>
     </div>
-    <div class="music-row">
-      <div class="music-row__text">
-        <p data-site-text="musicSoundcloudText">Mixes from Avec Anima nights and playlists we put together between shows. Full sets, no skips — follow along to hear what's coming before it lands on a lineup.</p>
-        <div>
-          <a data-site-href="soundcloudProfileUrl" target="_blank" rel="noopener" class="btn btn--solid" href="#" hidden>Follow on SoundCloud</a>
-        </div>
+    <div class="music-panel">
+      <div class="music-panel__text">
+        <p class="music-panel__lead" data-site-text="musicSoundcloudText">Mixes from Avec Anima nights and playlists we put together between shows. Full sets, no skips — follow along to hear what's coming before it lands on a lineup.</p>
+        <a data-site-href="soundcloudProfileUrl" target="_blank" rel="noopener" class="btn btn--solid" href="#" hidden>Follow on SoundCloud</a>
       </div>
       <div id="soundcloud-embed"></div>
     </div>

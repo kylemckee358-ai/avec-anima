@@ -9,7 +9,7 @@
 
     upcomingEl.innerHTML = upcoming.length
       ? upcoming.map((event) => renderEventCard(event, false)).join('')
-      : '<p class="events-empty">No upcoming events right now — check back soon.</p>';
+      : renderUpcomingEmpty();
 
     previousEl.innerHTML = previous.length
       ? previous.map((event) => renderEventCard(event, true)).join('')

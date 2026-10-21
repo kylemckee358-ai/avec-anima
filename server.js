@@ -139,6 +139,7 @@ const videoUpload = multer({
 
 // Homebrew's ffmpeg isn't on PATH when node is started from some apps, so look in the usual spots
 const FFMPEG = ['/opt/homebrew/bin/ffmpeg', '/usr/local/bin/ffmpeg'].find((p) => fs.existsSync(p)) || 'ffmpeg';
+const FFPROBE = FFMPEG.replace(/ffmpeg$/, 'ffprobe');
 const MAX_VIDEO_BYTES = 95 * 1024 * 1024; // GitHub rejects files over 100 MB
 
 function runFfmpeg(args) {
@@ -146,6 +147,14 @@ function runFfmpeg(args) {
     execFile(FFMPEG, ['-y', '-hide_banner', '-loglevel', 'error', ...args], { maxBuffer: 10 * 1024 * 1024 }, (err, stdout, stderr) => {
       if (err) reject(new Error(stderr.trim().split('\n').pop() || err.message));
       else resolve();
+    });
+  });
+}
+
+function videoDuration(file) {
+  return new Promise((resolve) => {
+    execFile(FFPROBE, ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', file], (err, stdout) => {
+      resolve(err ? 0 : parseFloat(stdout) || 0);
     });
   });
 }
@@ -387,7 +396,9 @@ app.post('/api/events/:category/:slug/aftermovie', videoUpload.single('video'), 
       throw new Error('compressed video is still over 95 MB — trim it under ~3 minutes');
     }
 
-    await runFfmpeg(['-ss', '2', '-i', tmpVideo, '-frames:v', '1', '-q:v', '2', tmpFrame]);
+    // Preview still from 20% in — the first seconds are often a title card or a fade from black
+    const still = Math.max(2, (await videoDuration(tmpVideo)) * 0.2).toFixed(2);
+    await runFfmpeg(['-ss', still, '-i', tmpVideo, '-frames:v', '1', '-q:v', '2', tmpFrame]);
     const { width, height } = await sharp(tmpFrame).metadata();
     await saveNormalizedImage({ path: tmpFrame, originalname: 'frame.jpg' }, path.join(dir, posterName), 1920);
     fs.copyFileSync(tmpVideo, path.join(dir, videoName));
@@ -633,6 +644,7 @@ app.get('/api/music/videos', (req, res) => {
 app.put('/api/music/videos', (req, res) => {
   fs.mkdirSync(MUSIC_DIR, { recursive: true });
   fs.writeFileSync(path.join(MUSIC_DIR, 'videos.json'), JSON.stringify(req.body, null, 2));
+  writeManifest(); // Music page banner uses the video thumbnails
   res.json({ ok: true });
 });
 
