@@ -29,7 +29,7 @@ const TYPES = {
 };
 
 const ROUTES = [
-  ['GET', /^\/api\/info$/, (c) => ({ mode: 'online', user: c.user })],
+  ['GET', /^\/api\/info$/, (c) => ({ mode: 'online', user: c.user, siteUrl: c.env.SITE_URL })],
   ['GET', /^\/api\/events$/, (c) => api.listEvents(c.env)],
   ['POST', /^\/api\/events$/, async (c) => api.createEvent(c.env, c.user, await c.body())],
   ['PUT', /^\/api\/events\/([a-z]+)\/([a-z0-9-]+)$/, async (c, cat, slug) => api.updateEvent(c.env, c.user, cat, slug, await c.body())],
@@ -89,7 +89,7 @@ async function handleApi(request, env, url, user) {
 // so GitHub's 5-minute file cache never shows a stale photo.
 async function serveFile(request, env, url) {
   const path = decodeURIComponent(url.pathname);
-  if (path === '/' || path === '/index.html') return Response.redirect(`${url.origin}/admin.html`, 302);
+  if (path === '/') return Response.redirect(`${url.origin}/admin.html`, 302);
   if (path.endsWith('.html') && path !== '/admin.html') {
     return Response.redirect(`${env.SITE_URL}${path}`, 302);
   }

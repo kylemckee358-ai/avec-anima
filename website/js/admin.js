@@ -957,6 +957,17 @@ function wireSettingsTab() {
 // Online: say so, and pick up uploads still being processed from an earlier visit
 api('GET', '/api/info').then((info) => {
   siteMode = info.mode || 'local';
+  // Links to the public pages (menu, footer, "View event page") open the live site in a
+  // new tab, so the admin stays open
+  if (siteMode === 'online' && info.siteUrl) {
+    document.addEventListener('click', (e) => {
+      const link = e.target.closest('a[href]');
+      const href = link && link.getAttribute('href');
+      if (!href || /^[a-z]+:|^#/i.test(href) || href.startsWith('admin.html') || !/\.html(#|$)/.test(href)) return;
+      e.preventDefault();
+      window.open(`${info.siteUrl}/${href}`, '_blank', 'noopener');
+    });
+  }
   document.getElementById('admin-intro').textContent = siteMode === 'online'
     ? 'Changes save to GitHub and go live on the site 1–2 minutes later. Photos and films are processed first, so they take a few minutes more. Every change is kept in GitHub\'s history.'
     : 'Changes save straight into the site files on this Mac and show up on the local site immediately. They go live after the site is pushed. This page only works while node server.js is running.';
