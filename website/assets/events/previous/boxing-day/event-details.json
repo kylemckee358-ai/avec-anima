@@ -7,9 +7,22 @@
   "ticketLink": null,
   "description": "Boxing Day at The Conister Arms — three floors, a vinyl-only closing set from Allan Vannin, and the last Avec Anima night of the year. A proper way to shake off the turkey.",
   "lineup": [
-    { "name": "Burg", "photo": null },
-    { "name": "Fionn", "photo": null },
-    { "name": "Yeardos", "photo": null },
-    { "name": "Allan Vannin (Vinyl Only Set)", "photo": null }
-  ]
+    {
+      "name": "Burg",
+      "photo": null
+    },
+    {
+      "name": "Fionn",
+      "photo": null
+    },
+    {
+      "name": "Yeardos",
+      "photo": null
+    },
+    {
+      "name": "Allan Vannin (Vinyl Only Set)",
+      "photo": null
+    }
+  ],
+  "aftermovieOrientation": "landscape"
 }
