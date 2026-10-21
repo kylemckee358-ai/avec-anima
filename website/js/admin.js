@@ -305,14 +305,11 @@ function renderEventEditor(event) {
   const otherCategory = event.category === 'upcoming' ? 'previous' : 'upcoming';
   const moveLabel = event.category === 'upcoming' ? 'Move to Previous' : 'Move to Upcoming';
   const lineupCount = (event.lineup || []).length;
-  const photoCount = (event.gallery || []).length;
 
   return `
     <details class="admin-item" data-key="${event.category}/${event.slug}" data-category="${event.category}" data-slug="${event.slug}">
       ${rowSummary(event, [
         badge(`${lineupCount} artist${lineupCount === 1 ? '' : 's'}`, lineupCount > 0),
-        badge('Film', Boolean(event.aftermovie)),
-        badge(`${photoCount} photos`, photoCount > 0),
       ])}
       <div class="admin-item__body">
         <div class="admin-item__grid">
