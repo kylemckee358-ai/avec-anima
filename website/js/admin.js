@@ -1,5 +1,8 @@
-// Admin page — talks to the local Express API (server.js). Every action here
-// writes real files; there is no undo beyond editing/re-adding things by hand.
+// Admin page — runs in two places with the same API:
+//   local  — server.js on this Mac: writes the site files directly, uploads processed straight away
+//   online — worker/ on Cloudflare: saves to GitHub, uploads processed by the GitHub build (a few minutes)
+// Every action writes real files; there is no undo beyond editing/re-adding things by hand
+// (online, every change is also a commit in GitHub's history).
 //
 // Tabs: Events (details, poster, lineup) · Gallery & After Movies (film, photos, Drive link)
 //       · Music (YouTube, SoundCloud) · Site Settings (links, page text, Google titles)
@@ -41,23 +44,123 @@ async function api(method, url, body) {
 }
 
 // fetch() can't report upload progress — big videos need it
-function uploadWithProgress(url, formData, onProgress) {
+function sendWithProgress(method, url, body, onProgress) {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', url);
+    xhr.open(method, url);
     xhr.upload.addEventListener('progress', (e) => {
-      if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
+      if (e.lengthComputable) onProgress(e.loaded);
     });
-    xhr.upload.addEventListener('load', () => onProgress(100));
     xhr.addEventListener('load', () => {
       let result = {};
       try { result = JSON.parse(xhr.responseText); } catch (err) { /* non-JSON error page */ }
       if (xhr.status >= 200 && xhr.status < 300) resolve(result);
       else reject(new Error(result.error || `Upload failed (${xhr.status})`));
     });
-    xhr.addEventListener('error', () => reject(new Error('Upload failed — is node server.js still running?')));
-    xhr.send(formData);
+    xhr.addEventListener('error', () => reject(new Error(siteMode === 'online'
+      ? 'Upload failed — check your connection and try again.'
+      : 'Upload failed — is node server.js still running?')));
+    xhr.send(body);
   });
+}
+
+// ── Uploads (posters, headshots, photos, films) ──────────────────────
+// Same steps locally and online — see lib/upload-rules.js. Locally the files are
+// processed as soon as the upload finishes; online the GitHub build processes them,
+// so we check back until it's done (it carries on even if this page is closed).
+
+let siteMode = 'local';
+
+function plural(n, word) {
+  return `${n} ${word}${n === 1 ? '' : 's'}`;
+}
+
+async function uploadFiles(event, type, files, { artist, onProgress = () => {} } = {}) {
+  const plan = await api('POST', '/api/uploads', {
+    type, category: event.category, slug: event.slug, artist, files: files.map((f) => f.name),
+  });
+
+  const total = files.reduce((sum, f) => sum + f.size, 0) || 1;
+  const sent = files.map(() => 0);
+  const report = () => onProgress(sent.reduce((a, b) => a + b, 0) / total);
+
+  async function sendFile(i) {
+    const file = files[i];
+    const url = `/api/uploads/${plan.id}/${encodeURIComponent(plan.files[i])}`;
+    if (file.size <= plan.chunkSize) {
+      await sendWithProgress('PUT', url, file, (loaded) => { sent[i] = loaded; report(); });
+    } else {
+      // Big films go up in chunks — online requests are capped at 100 MB
+      let uploadId = '';
+      const parts = [];
+      const count = Math.ceil(file.size / plan.chunkSize);
+      for (let part = 1; part <= count; part += 1) {
+        const start = (part - 1) * plan.chunkSize;
+        const chunk = file.slice(start, start + plan.chunkSize);
+        const query = `?part=${part}${uploadId ? `&uploadId=${encodeURIComponent(uploadId)}` : ''}`;
+        const result = await sendWithProgress('PUT', url + query, chunk, (loaded) => { sent[i] = start + loaded; report(); });
+        uploadId = result.uploadId || uploadId;
+        parts.push({ partNumber: part, etag: result.etag });
+      }
+      await api('POST', `${url}/complete`, { uploadId, parts });
+    }
+    sent[i] = file.size;
+    report();
+  }
+
+  // A few files at a time
+  let next = 0;
+  async function worker() {
+    while (next < files.length) await sendFile(next++);
+  }
+  await Promise.all(Array.from({ length: Math.min(3, files.length) }, worker));
+
+  return { id: plan.id, ...(await api('POST', `/api/uploads/${plan.id}/finish`)) };
+}
+
+const watching = new Set();
+
+// Online uploads: check back until the GitHub build has processed them
+function watchUpload(id, label) {
+  if (watching.has(id)) return;
+  watching.add(id);
+  const started = Date.now();
+  const timer = setInterval(async () => {
+    try {
+      const result = await api('GET', `/api/uploads/${id}`);
+      if (result.status === 'processing' && Date.now() - started < 45 * 60 * 1000) return;
+      clearInterval(timer);
+      watching.delete(id);
+      if (result.status === 'done') await refresh(`${result.message}.`);
+      else toast(result.status === 'processing'
+        ? `Still processing ${label} — check back later.`
+        : `Couldn't process ${label}: ${result.message}`, result.status !== 'processing');
+    } catch (err) {
+      // network blip — try again on the next tick
+    }
+  }, 15000);
+}
+
+// Uploads files with a progress message, then reports the result (or keeps checking online)
+async function runUpload(event, type, files, { artist, label }) {
+  const result = await uploadFiles(event, type, files, {
+    artist,
+    onProgress: (fraction) => {
+      let message = `Uploading ${label}… ${Math.round(fraction * 100)}%`;
+      if (fraction >= 1 && siteMode === 'online') message = `Finishing upload of ${label}…`;
+      else if (fraction >= 1) message = type === 'aftermovie' ? 'Compressing film… this takes a minute or two. Keep this page open.' : `Processing ${label}…`;
+      toast(message, false, true);
+    },
+  });
+
+  if (result.status === 'processing') {
+    toast(`Uploaded ${label} — it'll appear here once it's processed and published, usually within 5 minutes${type === 'aftermovie' ? ' (longer for films)' : ''}. You can leave this page.`, false, true);
+    watchUpload(result.id, label);
+    return result;
+  }
+  if (result.status === 'failed') throw new Error(`Couldn't process ${label}: ${result.message}`);
+  await refresh(`${result.message}.`);
+  return result;
 }
 
 // ── Tabs ──────────────────────────────────────────────────────────────
@@ -157,7 +260,7 @@ async function loadEvents() {
 
 async function refresh(message) {
   await loadEvents();
-  if (message) toast(message);
+  if (message) toast(siteMode === 'online' && !message.includes('site') ? `${message} The live site updates in 1–2 minutes.` : message);
 }
 
 // ── Events tab ───────────────────────────────────────────────────────
@@ -333,17 +436,9 @@ function wireEventsTab() {
         await saveLineup(event, lineup, 'Artist renamed.');
       } else if (e.target.dataset.action === 'artist-photo' && e.target.files[0]) {
         const index = Number(e.target.closest('.admin-lineup-item').dataset.index);
-        const data = new FormData();
-        data.append('photo', e.target.files[0]);
-        toast('Uploading headshot…', false, true);
-        await api('POST', `${apiBase(event)}/lineup/${index}/photo`, data);
-        await refresh('Headshot updated.');
+        await runUpload(event, 'artist-photo', [e.target.files[0]], { artist: event.lineup[index].name, label: 'headshot' });
       } else if (e.target.dataset.action === 'poster' && e.target.files[0]) {
-        const data = new FormData();
-        data.append('poster', e.target.files[0]);
-        toast('Uploading poster…', false, true);
-        await api('POST', `${apiBase(event)}/poster`, data);
-        await refresh('Poster replaced.');
+        await runUpload(event, 'poster', [e.target.files[0]], { label: 'poster' });
       }
     } catch (err) {
       toast(err.message, true);
@@ -362,8 +457,11 @@ function wireEventsTab() {
         await api('PUT', apiBase(event), Object.fromEntries(new FormData(form).entries()));
         await refresh('Details saved.');
       } else if (form.classList.contains('add-artist-form')) {
-        await api('POST', `${apiBase(event)}/lineup`, new FormData(form));
-        await refresh('Artist added.');
+        const name = form.name.value.trim();
+        const photo = form.photo.files[0];
+        await api('POST', `${apiBase(event)}/lineup`, { name });
+        if (photo) await runUpload(event, 'artist-photo', [photo], { artist: name, label: 'headshot' });
+        else await refresh('Artist added.');
       }
     } catch (err) {
       toast(err.message, true);
@@ -419,9 +517,24 @@ function wireAddEventForm() {
 
     try {
       const name = form.name.value;
-      const result = await api('POST', '/api/events', new FormData(form));
+      const fields = ['category', 'name', 'date', 'startTime', 'endTime', 'location', 'ticketLink', 'description'];
+      const body = Object.fromEntries(fields.map((f) => [f, form[f].value]));
+      const artists = Array.from(rowsEl.querySelectorAll('.admin-lineup-row'))
+        .map((row) => ({ name: row.querySelector('input[type="text"]').value.trim(), photo: row.querySelector('input[type="file"]').files[0] }))
+        .filter((a) => a.name);
+      body.lineup = artists.map((a) => a.name);
+      const poster = form.poster.files[0];
+
+      const result = await api('POST', '/api/events', body);
       closeForm();
-      await refresh(`Created "${name}".`);
+      // Poster and headshots follow as uploads, against the event that now exists
+      await runUpload(result, 'poster', [poster], { label: 'poster' });
+      for (const artist of artists.filter((a) => a.photo)) {
+        await runUpload(result, 'artist-photo', [artist.photo], { artist: artist.name, label: `${artist.name}'s headshot` });
+      }
+      await refresh(siteMode === 'online'
+        ? `Created "${name}" — it goes on the site once its poster is processed, usually within 5 minutes.`
+        : `Created "${name}".`);
       const created = document.querySelector(`#${result.category}-admin-list details[data-key="${result.category}/${result.slug}"]`);
       if (created) {
         created.open = true;
@@ -497,7 +610,7 @@ function renderGalleryEditor(event) {
               <label>Google Drive Folder Link</label>
               <input type="url" name="driveLink" value="${escapeAttr(event.driveLink)}" placeholder="https://drive.google.com/drive/folders/...">
             </div>
-            <p class="admin-note">Shows a "Download full-quality photos" link for this event. Make sure the folder is shared as "Anyone with the link".</p>
+            <p class="admin-note">The "View All Photos" button on the gallery page opens this folder. Make sure it's shared as "Anyone with the link".</p>
             <button type="submit" class="btn btn--solid btn--small">Save Link</button>
           </form>
         </div>
@@ -519,7 +632,7 @@ function renderGalleryEditor(event) {
           </label>
           <a class="admin-link" href="gallery.html#${event.slug}" target="_blank" rel="noopener">View on gallery page &#8599;</a>
         </div>
-        <p class="admin-note">Select up to 60 at a time, up to 30 MB each, any shape (iPhone HEIC works). They're resized for the web automatically — keep the full-quality originals in the Drive folder.</p>
+        <p class="admin-note">Select up to 100 at a time, any shape (iPhone HEIC works). They're resized for the web automatically — keep the full-quality originals in the Drive folder.</p>
       </div>
     </details>
   `;
@@ -636,22 +749,16 @@ function wireGalleryTab() {
     const files = e.target.files;
     if (!files || !files.length || (action !== 'film' && action !== 'photos')) return;
 
-    const data = new FormData();
-    if (action === 'film') data.append('video', files[0]);
-    else Array.from(files).forEach((f) => data.append('photos', f));
-
     try {
-      const label = action === 'film' ? 'film' : `${files.length} photo${files.length === 1 ? '' : 's'}`;
-      const result = await uploadWithProgress(`${apiBase(event)}/${action === 'film' ? 'aftermovie' : 'gallery'}`, data, (pct) => {
-        toast(pct < 100
-          ? `Uploading ${label}… ${pct}%`
-          : (action === 'film' ? 'Compressing film… this takes a minute or two. Keep this page open.' : 'Resizing photos…'), false, true);
-      });
-      if (result.failed && result.failed.length) toast(`Couldn't read: ${result.failed.join(', ')}`, true);
-      await refresh(action === 'film' ? 'After movie saved.' : `Added ${result.added} photo${result.added === 1 ? '' : 's'}.`);
+      if (action === 'film') {
+        await runUpload(event, 'aftermovie', [files[0]], { label: 'film' });
+      } else {
+        await runUpload(event, 'gallery', Array.from(files), { label: plural(files.length, 'photo') });
+      }
     } catch (err) {
       toast(err.message, true);
     }
+    e.target.value = '';
   });
 
   container.addEventListener('submit', async (e) => {
@@ -846,6 +953,20 @@ function wireSettingsTab() {
 }
 
 // ── Init ──────────────────────────────────────────────────────────────
+
+// Online: say so, and pick up uploads still being processed from an earlier visit
+api('GET', '/api/info').then((info) => {
+  siteMode = info.mode || 'local';
+  document.getElementById('admin-intro').textContent = siteMode === 'online'
+    ? 'Changes save to GitHub and go live on the site 1–2 minutes later. Photos and films are processed first, so they take a few minutes more. Every change is kept in GitHub\'s history.'
+    : 'Changes save straight into the site files on this Mac and show up on the local site immediately. They go live after the site is pushed. This page only works while node server.js is running.';
+  if (siteMode === 'online') {
+    api('GET', '/api/uploads').then(({ processing = [] }) => {
+      processing.forEach((job) => watchUpload(job.id, job.label));
+      if (processing.length) toast(`Still processing ${plural(processing.length, 'upload')} — they'll appear here when done.`, false, true);
+    }).catch(() => {});
+  }
+}).catch(() => {});
 
 wireTabs();
 wireEventsTab();

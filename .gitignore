@@ -13,3 +13,5 @@ Photo2.png
 After Movies/
 Photos/
 .uploads/
+worker/.dev.vars
+worker/.wrangler/

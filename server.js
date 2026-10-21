@@ -9,24 +9,25 @@
  * Every mutating endpoint below rebuilds assets/events/manifest.json before
  * responding, so the public site reflects changes immediately on refresh.
  *
+ * The same admin page also runs online (worker/), where uploads are processed by the
+ * GitHub build instead — so uploads go through one shared set of steps (lib/upload-rules.js).
+ *
  * API:
- *   GET    /api/events                          — list all events (upcoming + previous)
+ *   GET    /api/info                            — { mode: 'local' } (online: 'online')
+ *   GET    /api/events                          — list all events (upcoming + previous), incl. ones still missing a poster
  *   GET    /api/events/:category/:slug          — single event, raw fields
- *   POST   /api/events                          — create event (multipart: poster file + fields)
+ *   POST   /api/events                          — create event (json: fields + lineup: ['name', ...]); poster follows as an upload
  *   PUT    /api/events/:category/:slug          — edit core fields (json body)
- *   POST   /api/events/:category/:slug/poster   — replace poster (multipart: poster file)
- *   POST   /api/events/:category/:slug/lineup   — add lineup artist (multipart: name + photo)
+ *   POST   /api/events/:category/:slug/lineup   — add lineup artist (json: { name }) → { index }; headshot follows as an upload
  *   DELETE /api/events/:category/:slug/lineup/:index — remove lineup artist by index
  *   POST   /api/events/:category/:slug/move     — move upcoming <-> previous (json: { toCategory })
  *   DELETE /api/events/:category/:slug          — delete event entirely
- *   POST   /api/events/:category/:slug/aftermovie — upload after movie (multipart: video), compressed with ffmpeg
  *   DELETE /api/events/:category/:slug/aftermovie — remove after movie
- *   POST   /api/events/:category/:slug/gallery  — add gallery photos (multipart: photos[])
  *   DELETE /api/events/:category/:slug/gallery/:file — remove one gallery photo
  *   PUT    /api/events/:category/:slug/gallery/order — reorder photos (json: { files: ['<id>.jpg', ...] })
  *   POST   /api/events/:category/:slug/gallery/delete — remove several photos (json: { files: [...] })
  *   PUT    /api/events/:category/:slug/lineup       — rename/reorder lineup (json: [{ name, photo }])
- *   POST   /api/events/:category/:slug/lineup/:index/photo — replace one artist's headshot (multipart: photo)
+ *   POST   /api/uploads (+ PUT file, POST finish, GET status) — posters, headshots, photos, films (see lib/upload-rules.js)
  *   GET    /api/site                            — site settings (links, page text, Google titles)
  *   PUT    /api/site                            — save site settings (json), rebuilds every page
  *   GET    /api/music/videos                    — read videos.json
@@ -36,7 +37,6 @@
  */
 
 const express = require('express');
-const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
@@ -57,14 +57,9 @@ const {
   writeGalleryOrder,
 } = require('./lib/events-data');
 
-const {
-  removeMatching,
-  saveNormalizedImage,
-  replacePoster,
-  addGalleryPhotos,
-  replaceArtistPhoto,
-  processAftermovie,
-} = require('./lib/media');
+const { removeMatching } = require('./lib/media');
+const { CHUNK_SIZE, newJobId, planJob } = require('./lib/upload-rules');
+const { runJob } = require('./process-uploads');
 const { readSite, writeSite } = require('./lib/site');
 
 const app = express();
@@ -91,22 +86,13 @@ function isValidCategory(category) {
   return CATEGORIES.includes(category);
 }
 
-// Uploads land in a temp dir first (destination doesn't know the final
-// category/slug yet since that depends on body fields parsed after the file).
-const upload = multer({
-  dest: path.join(ROOT, '.tmp-uploads'),
-  limits: { fileSize: 30 * 1024 * 1024 },
-});
-
-// After movies are far bigger than images — separate limit so the image one stays tight
-const videoUpload = multer({
-  dest: path.join(ROOT, '.tmp-uploads'),
-  limits: { fileSize: 2 * 1024 * 1024 * 1024 },
-});
-
 // ── Events: read ──────────────────────────────────────────────────
+app.get('/api/info', (req, res) => {
+  res.json({ mode: 'local' });
+});
+
 app.get('/api/events', (req, res) => {
-  res.json(readAllEvents());
+  res.json(readAllEvents({ includeIncomplete: true }));
 });
 
 app.get('/api/events/:category/:slug', (req, res) => {
@@ -133,58 +119,19 @@ app.get('/api/events/:category/:slug', (req, res) => {
 });
 
 // ── Events: create ────────────────────────────────────────────────
-// Lineup artists arrive as indexed fields from the Add Event form:
-//   artistName_0 / artistPhoto_0, artistName_1 / artistPhoto_1, ...
-// (a photo file is optional per artist — missing ones just get photo: null)
-app.post('/api/events', upload.any(), async (req, res) => {
+// Lineup arrives as a list of names; the admin then uploads the poster and any
+// headshots through /api/uploads (the event isn't on the public site until its poster is in).
+app.post('/api/events', (req, res) => {
   const { category, name, date, startTime, endTime, location, ticketLink, description } = req.body;
 
   if (!isValidCategory(category)) return res.status(400).json({ error: 'Invalid category' });
   if (!name || !date) return res.status(400).json({ error: 'Name and date are required' });
 
-  const files = req.files || [];
-  const posterFile = files.find((f) => f.fieldname === 'poster');
-  if (!posterFile) return res.status(400).json({ error: 'Poster image is required' });
-
   const slug = uniqueSlug(category, slugify(name));
-  const dir = eventDir(category, slug);
-  fs.mkdirSync(dir, { recursive: true });
-
-  try {
-    await saveNormalizedImage(posterFile, path.join(dir, 'poster.jpg'));
-  } catch (err) {
-    fs.rmSync(dir, { recursive: true, force: true });
-    return res.status(400).json({ error: `Couldn't read that poster image (${err.message})` });
-  }
-
-  const artistIndexes = Object.keys(req.body)
-    .filter((key) => /^artistName_\d+$/.test(key))
-    .map((key) => Number(key.split('_')[1]))
-    .sort((a, b) => a - b);
-
-  const lineup = [];
-  if (artistIndexes.length) {
-    const lineupDir = path.join(dir, 'lineup');
-    fs.mkdirSync(lineupDir, { recursive: true });
-
-    for (const i of artistIndexes) {
-      const artistName = (req.body[`artistName_${i}`] || '').trim();
-      if (!artistName) continue;
-
-      const photoFile = files.find((f) => f.fieldname === `artistPhoto_${i}`);
-      let photo = null;
-      if (photoFile) {
-        const filename = `${slugify(artistName)}.jpg`;
-        try {
-          await saveNormalizedImage(photoFile, path.join(lineupDir, filename));
-          photo = `lineup/${filename}`;
-        } catch (err) {
-          // couldn't read this artist's photo — keep the artist, just without one
-        }
-      }
-      lineup.push({ name: artistName, photo });
-    }
-  }
+  const lineup = (Array.isArray(req.body.lineup) ? req.body.lineup : [])
+    .map((artistName) => String(artistName || '').trim())
+    .filter(Boolean)
+    .map((artistName) => ({ name: artistName, photo: null }));
 
   writeEventDetailsRaw(category, slug, {
     name,
@@ -197,7 +144,7 @@ app.post('/api/events', upload.any(), async (req, res) => {
     lineup,
   });
 
-  writeManifest();
+  // No manifest rebuild yet — the event can't be shown until its poster upload is processed
   res.json({ ok: true, category, slug });
 });
 
@@ -227,55 +174,20 @@ app.put('/api/events/:category/:slug', (req, res) => {
   res.json({ ok: true });
 });
 
-// ── Events: replace poster ────────────────────────────────────────
-app.post('/api/events/:category/:slug/poster', upload.single('poster'), async (req, res) => {
-  const { category, slug } = req.params;
-  if (!isValidCategory(category)) return res.status(400).json({ error: 'Invalid category' });
-  if (!req.file) return res.status(400).json({ error: 'Poster image is required' });
-
-  const dir = eventDir(category, slug);
-  if (!fs.existsSync(dir)) return res.status(404).json({ error: 'Event not found' });
-
-  try {
-    await replacePoster(category, slug, req.file);
-  } catch (err) {
-    if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-    return res.status(400).json({ error: `Couldn't read that poster image (${err.message})` });
-  }
-
-  writeManifest();
-  res.json({ ok: true });
-});
-
 // ── Events: add lineup artist ─────────────────────────────────────
-app.post('/api/events/:category/:slug/lineup', upload.single('photo'), async (req, res) => {
+app.post('/api/events/:category/:slug/lineup', (req, res) => {
   const { category, slug } = req.params;
-  const { name } = req.body;
+  const name = String(req.body.name || '').trim();
   if (!isValidCategory(category)) return res.status(400).json({ error: 'Invalid category' });
   if (!name) return res.status(400).json({ error: 'Artist name is required' });
 
   const details = readEventDetailsRaw(category, slug);
   if (!details) return res.status(404).json({ error: 'Event not found' });
 
-  let photo = null;
-  if (req.file) {
-    const dir = eventDir(category, slug);
-    const lineupDir = path.join(dir, 'lineup');
-    fs.mkdirSync(lineupDir, { recursive: true });
-
-    const filename = `${slugify(name)}.jpg`;
-    try {
-      await saveNormalizedImage(req.file, path.join(lineupDir, filename));
-      photo = `lineup/${filename}`;
-    } catch (err) {
-      return res.status(400).json({ error: `Couldn't read that photo (${err.message})` });
-    }
-  }
-
-  details.lineup = [...(details.lineup || []), { name, photo }];
+  details.lineup = [...(details.lineup || []), { name, photo: null }];
   writeEventDetailsRaw(category, slug, details);
   writeManifest();
-  res.json({ ok: true });
+  res.json({ ok: true, index: details.lineup.length - 1 });
 });
 
 // ── Events: remove lineup artist ──────────────────────────────────
@@ -302,29 +214,7 @@ app.delete('/api/events/:category/:slug/lineup/:index', (req, res) => {
   res.json({ ok: true });
 });
 
-// ── Events: after movie (processing in lib/media.js) ─────────────
-app.post('/api/events/:category/:slug/aftermovie', videoUpload.single('video'), async (req, res) => {
-  const { category, slug } = req.params;
-  if (!isValidCategory(category)) return res.status(400).json({ error: 'Invalid category' });
-  if (!req.file) return res.status(400).json({ error: 'Video file is required' });
-
-  const dir = eventDir(category, slug);
-  if (!fs.existsSync(dir)) {
-    fs.unlinkSync(req.file.path);
-    return res.status(404).json({ error: 'Event not found' });
-  }
-
-  let size;
-  try {
-    size = await processAftermovie(category, slug, req.file);
-  } catch (err) {
-    return res.status(400).json({ error: `Couldn't process that video (${err.message})` });
-  }
-
-  writeManifest();
-  res.json({ ok: true, size });
-});
-
+// ── Events: after movie ──────────────────────────────────────────
 app.delete('/api/events/:category/:slug/aftermovie', (req, res) => {
   const { category, slug } = req.params;
   if (!isValidCategory(category)) return res.status(400).json({ error: 'Invalid category' });
@@ -343,24 +233,7 @@ app.delete('/api/events/:category/:slug/aftermovie', (req, res) => {
   res.json({ ok: true });
 });
 
-// ── Events: gallery photos (processing in lib/media.js) ──────────
-app.post('/api/events/:category/:slug/gallery', upload.array('photos', 60), async (req, res) => {
-  const { category, slug } = req.params;
-  if (!isValidCategory(category)) return res.status(400).json({ error: 'Invalid category' });
-  const files = req.files || [];
-  if (!files.length) return res.status(400).json({ error: 'Choose at least one photo' });
-
-  const dir = eventDir(category, slug);
-  if (!fs.existsSync(dir)) {
-    files.forEach((f) => fs.unlinkSync(f.path));
-    return res.status(404).json({ error: 'Event not found' });
-  }
-
-  const { added, failed } = await addGalleryPhotos(category, slug, files);
-  writeManifest();
-  res.json({ ok: true, added, failed });
-});
-
+// ── Events: gallery photos ───────────────────────────────────────
 app.delete('/api/events/:category/:slug/gallery/:file', (req, res) => {
   const { category, slug, file } = req.params;
   if (!isValidCategory(category)) return res.status(400).json({ error: 'Invalid category' });
@@ -444,21 +317,72 @@ app.put('/api/events/:category/:slug/lineup', (req, res) => {
   res.json({ ok: true });
 });
 
-app.post('/api/events/:category/:slug/lineup/:index/photo', upload.single('photo'), async (req, res) => {
-  const { category, slug, index } = req.params;
-  if (!isValidCategory(category)) return res.status(400).json({ error: 'Invalid category' });
-  if (!req.file) return res.status(400).json({ error: 'Photo is required' });
+// ── Uploads: posters, headshots, photos, films (steps in lib/upload-rules.js) ──
+// Files collect in .uploads/jobs/<id>/; finishing runs the job straight away with the
+// same code the GitHub build uses for uploads from the online admin.
+const UPLOADS_DIR = path.join(ROOT, '.uploads', 'jobs');
+const uploadResults = new Map();
 
+function uploadDir(id) {
+  if (!/^[a-z0-9-]+$/.test(id)) throw new Error('Invalid upload');
+  return path.join(UPLOADS_DIR, id);
+}
+
+function readPlan(id) {
+  const file = path.join(uploadDir(id), 'plan.json');
+  return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : null;
+}
+
+app.post('/api/uploads', (req, res) => {
+  let plan;
   try {
-    await replaceArtistPhoto(category, slug, Number(index), req.file);
+    plan = planJob(req.body);
   } catch (err) {
-    if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-    const notFound = err.message === 'Artist not found';
-    return res.status(notFound ? 404 : 400).json({ error: notFound ? err.message : `Couldn't read that photo (${err.message})` });
+    return res.status(400).json({ error: err.message });
   }
+  if (!fs.existsSync(eventDir(plan.job.category, plan.job.slug))) return res.status(404).json({ error: 'Event not found' });
 
-  writeManifest();
+  const id = newJobId();
+  fs.mkdirSync(uploadDir(id), { recursive: true });
+  fs.writeFileSync(path.join(uploadDir(id), 'plan.json'), JSON.stringify(plan));
+  res.json({ id, files: plan.files, chunkSize: CHUNK_SIZE });
+});
+
+app.put('/api/uploads/:id/:file', express.raw({ type: () => true, limit: CHUNK_SIZE + 1024 * 1024 }), (req, res) => {
+  const { id, file } = req.params;
+  const plan = readPlan(id);
+  if (!plan || !plan.files.includes(file)) return res.status(404).json({ error: 'Upload not found' });
+
+  const part = Number(req.query.part) || 1;
+  const target = path.join(uploadDir(id), file);
+  if (part === 1) fs.writeFileSync(target, req.body);
+  else fs.appendFileSync(target, req.body); // parts arrive in order
+  res.json({ ok: true, uploadId: 'local', etag: String(part) });
+});
+
+app.post('/api/uploads/:id/:file/complete', (req, res) => {
   res.json({ ok: true });
+});
+
+app.post('/api/uploads/:id/finish', async (req, res) => {
+  const { id } = req.params;
+  const plan = readPlan(id);
+  if (!plan) return res.status(404).json({ error: 'Upload not found' });
+
+  let result;
+  try {
+    result = { status: 'done', message: await runJob(uploadDir(id), plan.job) };
+    writeManifest();
+  } catch (err) {
+    result = { status: 'failed', message: err.message };
+  }
+  fs.rmSync(uploadDir(id), { recursive: true, force: true });
+  uploadResults.set(id, result);
+  res.json(result);
+});
+
+app.get('/api/uploads/:id', (req, res) => {
+  res.json(uploadResults.get(req.params.id) || { status: 'failed', message: 'Upload not found' });
 });
 
 // ── Site settings ────────────────────────────────────────────────
@@ -531,7 +455,7 @@ app.put('/api/music/soundcloud', (req, res) => {
 });
 
 // ── Error handling ─────────────────────────────────────────────────
-// Catches multer errors (e.g. file too large) and anything else that
+// Catches upload errors (e.g. a chunk too large) and anything else that
 // throws, so the admin page always gets a clean JSON error instead of
 // an HTML crash page it can't parse.
 app.use((err, req, res, next) => {
@@ -541,6 +465,7 @@ app.use((err, req, res, next) => {
 
 // ── Start ────────────────────────────────────────────────────────────
 writeManifest();
+
 app.listen(PORT, () => {
   console.log('──────────────────────────────────────────');
   console.log(`Avec Anima dev server → http://localhost:${PORT}`);

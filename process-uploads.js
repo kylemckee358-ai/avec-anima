@@ -11,7 +11,7 @@
 //   { "type": "artist-photo", "category": "upcoming", "slug": "...",      "artist": "Scon", "file": "scon.jpg" }
 //   { "type": "aftermovie",   "category": "previous", "slug": "...",      "file": "film.mov" }
 //
-// Uses the same processing as the admin on this Mac (lib/media.js). Writes one result per job to
+// Uses the same processing as the admin on this Mac (lib/media.js) — server.js calls runJob directly. Writes one result per job to
 // <uploadsDir>/results/<jobId>.json ({ ok, message }) so the admin can show what happened, and lists
 // the finished job ids in <uploadsDir>/processed.txt — the workflow deletes only those from R2.
 
@@ -20,10 +20,6 @@ const path = require('path');
 
 const { CATEGORIES, eventDir, readEventDetailsRaw, writeManifest } = require('./lib/events-data');
 const { replacePoster, addGalleryPhotos, replaceArtistPhoto, processAftermovie } = require('./lib/media');
-
-const uploadsDir = path.resolve(process.argv[2] || '.uploads');
-const jobsDir = path.join(uploadsDir, 'jobs');
-const resultsDir = path.join(uploadsDir, 'results');
 
 // Only plain filenames inside the job's own folder
 function jobFile(jobDir, name) {
@@ -74,7 +70,9 @@ async function runJob(jobDir, job) {
   throw new Error(`unknown upload type "${type}"`);
 }
 
-(async function main() {
+async function main(uploadsDir) {
+  const jobsDir = path.join(uploadsDir, 'jobs');
+  const resultsDir = path.join(uploadsDir, 'results');
   const jobIds = fs.existsSync(jobsDir)
     ? fs.readdirSync(jobsDir).filter((id) => fs.existsSync(path.join(jobsDir, id, 'job.json'))).sort()
     : [];
@@ -101,4 +99,9 @@ async function runJob(jobDir, job) {
   if (changed) writeManifest();
   fs.writeFileSync(path.join(uploadsDir, 'processed.txt'), processed.join('\n') + (processed.length ? '\n' : ''));
   console.log(`${processed.length} upload job${processed.length === 1 ? '' : 's'} processed`);
-})();
+}
+
+// server.js runs single jobs straight away with runJob
+if (require.main === module) main(path.resolve(process.argv[2] || '.uploads'));
+
+module.exports = { runJob };

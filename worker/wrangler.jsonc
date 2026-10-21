@@ -1,0 +1,19 @@
+// Online admin — deploy with: npx wrangler deploy   (from this folder)
+// Secret (set once, in the Cloudflare dashboard or `wrangler secret put`): GITHUB_TOKEN
+{
+  "name": "avec-anima-admin",
+  "main": "src/index.js",
+  "compatibility_date": "2025-09-15",
+  "workers_dev": true,
+  "preview_urls": false,
+  "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "avec-anima-uploads" }],
+  "vars": {
+    "GITHUB_REPO": "kylemckee358-ai/avec-anima",
+    "GITHUB_BRANCH": "main",
+    "SITE_URL": "https://kylemckee358-ai.github.io/avec-anima",
+    // Filled in when Cloudflare Access is switched on — until then every request is refused
+    "ACCESS_TEAM_DOMAIN": "",
+    "ACCESS_AUD": ""
+  },
+  "observability": { "enabled": true }
+}

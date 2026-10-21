@@ -32,7 +32,7 @@
 
   <header class="section container admin-header">
     <h1 class="section-title">Admin</h1>
-    <p class="admin-note">
+    <p class="admin-note" id="admin-intro">
       Changes save straight into the site files on this Mac and show up on the local site immediately. They go live after the site is pushed. This page only works while <code>node server.js</code> is running.
     </p>
     <div class="admin-tabs" role="tablist">
@@ -52,7 +52,7 @@
         <button type="button" class="btn btn--solid btn--small" id="toggle-add-event">+ Add Event</button>
       </div>
 
-      <form id="add-event-form" class="admin-form admin-box" enctype="multipart/form-data" hidden>
+      <form id="add-event-form" class="admin-form admin-box" hidden>
         <h2 class="admin-box__title">New Event</h2>
         <div class="fields-row">
           <div class="field">
