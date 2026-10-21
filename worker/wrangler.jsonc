@@ -11,9 +11,9 @@
     "GITHUB_REPO": "kylemckee358-ai/avec-anima",
     "GITHUB_BRANCH": "main",
     "SITE_URL": "https://kylemckee358-ai.github.io/avec-anima",
-    // Filled in when Cloudflare Access is switched on — until then every request is refused
-    "ACCESS_TEAM_DOMAIN": "",
-    "ACCESS_AUD": ""
+    // Cloudflare Access (Worker → Access tab). Blank = every request refused.
+    "ACCESS_TEAM_DOMAIN": "royal-hat-f5ef.cloudflareaccess.com",
+    "ACCESS_AUD": "24e95a5c75d3a48cb4f78850a8e35b0c0cc31055fe10905848efd9801f158063"
   },
   "observability": { "enabled": true }
 }
