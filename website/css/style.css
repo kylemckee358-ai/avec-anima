@@ -844,6 +844,110 @@ ul { list-style: none; }
   border-radius: 1px;
 }
 
+/* SoundCloud playlist carousel — shown when there's more than one playlist */
+.sc-carousel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sc-carousel__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.sc-carousel__title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 18px;
+  text-transform: uppercase;
+  line-height: 1.2;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sc-carousel__nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.sc-carousel__count {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  margin-right: 4px;
+}
+
+.sc-carousel__btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-size: 22px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.sc-carousel__btn:hover,
+.sc-carousel__btn:focus-visible {
+  border-color: var(--text);
+}
+
+.sc-carousel__viewport {
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.sc-carousel__track {
+  display: flex;
+  transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.sc-carousel__slide {
+  flex: 0 0 100%;
+  min-width: 0;
+}
+
+.sc-carousel__dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.sc-carousel__dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: var(--border);
+  cursor: pointer;
+  transition: width 0.3s, background 0.3s;
+}
+
+.sc-carousel__dot.is-active {
+  width: 24px;
+  background: var(--text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-carousel__track,
+  .sc-carousel__dot { transition: none; }
+}
+
 /* ── MERCH PREVIEW ── */
 .merch-grid {
   display: grid;
@@ -1259,12 +1363,6 @@ ul { list-style: none; }
   width: 100%;
   justify-content: center;
   border-radius: 4px;
-}
-
-.gallery-section__download {
-  color: var(--text);
-  text-decoration: underline;
-  text-underline-offset: 3px;
 }
 
 /* Tablet + phone: stack film above a square-tile preview */

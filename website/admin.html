@@ -138,21 +138,16 @@
         </div>
       </div>
 
-      <form id="soundcloud-form" class="admin-form admin-box">
-        <h2 class="admin-box__title">SoundCloud</h2>
-        <div class="field">
-          <label for="sc-title">Playlist / Mix Title</label>
-          <input type="text" id="sc-title" name="playlistTitle">
-        </div>
-        <div class="field">
-          <label for="sc-embed">Track or Playlist Link (embedded on the site)</label>
-          <input type="text" id="sc-embed" name="embedUrl" placeholder="https://soundcloud.com/... (leave blank for a placeholder)">
-        </div>
-        <p class="admin-note">Your YouTube channel and SoundCloud profile links (for the Subscribe / Follow buttons) are in Site Settings.</p>
+      <div class="admin-box">
+        <h2 class="admin-box__title">SoundCloud Playlists</h2>
+        <p class="admin-note">Paste each playlist's SoundCloud link. With more than one, they show as a carousel on the home and Music pages, in this order. Use the arrows to reorder.</p>
+        <div id="playlist-rows" style="margin-top: 16px;"></div>
         <div class="admin-actions">
-          <button type="submit" class="btn btn--solid btn--small">Save SoundCloud</button>
+          <button type="button" id="add-playlist-row" class="btn btn--outline btn--small">Add Playlist</button>
+          <button type="button" id="save-playlists" class="btn btn--solid btn--small">Save Playlists</button>
         </div>
-      </form>
+        <p class="admin-note" style="margin-top: 16px;">Your YouTube channel and SoundCloud profile links (for the Subscribe / Follow buttons) are in Site Settings.</p>
+      </div>
     </section>
 
     <!-- ── Site Settings ── -->

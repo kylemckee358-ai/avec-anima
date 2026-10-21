@@ -7,10 +7,26 @@
   "ticketLink": null,
   "description": "A Boxing Day detour to Mrs Yang's — low light, cherry blossom, and a lineup built for dancing off the last of the year.",
   "lineup": [
-    { "name": "Joe Matthews", "photo": null },
-    { "name": "Paz", "photo": null },
-    { "name": "Yeardos", "photo": null },
-    { "name": "Wints", "photo": null },
-    { "name": "Fionn", "photo": null }
-  ]
+    {
+      "name": "Joe Matthews",
+      "photo": null
+    },
+    {
+      "name": "Paz",
+      "photo": null
+    },
+    {
+      "name": "Yeardos",
+      "photo": null
+    },
+    {
+      "name": "Wints",
+      "photo": null
+    },
+    {
+      "name": "Fionn",
+      "photo": null
+    }
+  ],
+  "driveLink": "https://drive.google.com/drive/folders/1rZnP2z8OWnF8RnhJkI53Y-lWiApDiYmM?hl=ID"
 }

@@ -40,6 +40,7 @@
   try {
     const soundcloud = await fetch('assets/music/soundcloud.json').then((r) => r.json());
     el.innerHTML = renderSoundcloud(soundcloud);
+    initSoundcloud(el);
   } catch (err) {
     el.innerHTML = '<p class="events-empty">Couldn\'t load SoundCloud.</p>';
     console.error(err);

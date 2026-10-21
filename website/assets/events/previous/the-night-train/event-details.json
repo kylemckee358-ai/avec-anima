@@ -7,10 +7,26 @@
   "ticketLink": null,
   "description": "Easter Weekend at The Railway — Josh Dolton topping a night of Avec Anima regulars, running through to 2:30am.",
   "lineup": [
-    { "name": "Josh Dolton", "photo": null },
-    { "name": "PK", "photo": null },
-    { "name": "Allan Vannin", "photo": null },
-    { "name": "Yeardos", "photo": null },
-    { "name": "Dunner", "photo": null }
-  ]
+    {
+      "name": "Josh Dolton",
+      "photo": null
+    },
+    {
+      "name": "PK",
+      "photo": null
+    },
+    {
+      "name": "Allan Vannin",
+      "photo": null
+    },
+    {
+      "name": "Yeardos",
+      "photo": null
+    },
+    {
+      "name": "Dunner",
+      "photo": null
+    }
+  ],
+  "driveLink": "https://drive.google.com/drive/folders/1rNOQfLZgfgJ4EH0TgXXAaIJdIBk3rzAW?hl=ID"
 }

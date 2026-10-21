@@ -45,21 +45,23 @@ function renderGallerySection(event) {
           </a>
         `).join('')}
       </div>
+      ${event.driveLink ? `
+      <a class="btn btn--outline gallery-all" href="${event.driveLink}" target="_blank" rel="noopener">
+        View All Photos
+      </a>
+      ` : `
       <button type="button" class="btn btn--outline gallery-all" data-view-all="${event.slug}">
-        View All ${photos.length} Photos
+        View All Photos
       </button>
+      `}
     </div>
   ` : '';
-
-  const download = event.driveLink
-    ? ` &middot; <a href="${event.driveLink}" target="_blank" rel="noopener" class="gallery-section__download">Download full-quality photos</a>`
-    : '';
 
   return `
     <section class="gallery-section gallery-section--${photos.length ? layout : 'film'}" id="${event.slug}" data-drive-link="${event.driveLink || ''}">
       <div class="gallery-section__header">
         <h2 class="section-title gallery-section__title">${event.name}</h2>
-        <p class="gallery-section__meta">${formatGalleryDate(event.date)}${venue ? ` &middot; ${venue}` : ''}${download}</p>
+        <p class="gallery-section__meta">${formatGalleryDate(event.date)}${venue ? ` &middot; ${venue}` : ''}</p>
       </div>
       <div class="gallery-layout">
         ${aftermovie}

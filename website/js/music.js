@@ -80,6 +80,7 @@ function playInFeatured(video) {
     }
 
     soundcloudEl.innerHTML = renderSoundcloud(soundcloud);
+    initSoundcloud(soundcloudEl);
   } catch (err) {
     featuredEl.innerHTML = '<p class="events-empty">Couldn\'t load videos. Refresh to try again.</p>';
     console.error(err);

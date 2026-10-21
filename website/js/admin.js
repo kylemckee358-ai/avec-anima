@@ -686,6 +686,21 @@ function renderVideoRow(video) {
   `;
 }
 
+function renderPlaylistRow(playlist) {
+  return `
+    <div class="admin-video-row">
+      <span class="admin-video-row__featured">First</span>
+      <div class="field" style="margin-bottom: 0;"><label>Playlist Title</label><input type="text" class="p-title" value="${escapeAttr(playlist.title || '')}"></div>
+      <div class="field" style="margin-bottom: 0;"><label>SoundCloud Link</label><input type="text" class="p-url" value="${escapeAttr(playlist.embedUrl || '')}" placeholder="https://soundcloud.com/.../sets/..."></div>
+      <div class="admin-lineup-item__order">
+        <button type="button" class="admin-icon-btn" data-action="playlist-up" title="Move up">&#8593;</button>
+        <button type="button" class="admin-icon-btn" data-action="playlist-down" title="Move down">&#8595;</button>
+      </div>
+      <button type="button" class="admin-icon-btn admin-icon-btn--danger" data-action="remove-playlist" title="Remove">&times;</button>
+    </div>
+  `;
+}
+
 async function loadVideos() {
   const videos = await api('GET', '/api/music/videos');
   document.getElementById('video-rows').innerHTML = videos.map(renderVideoRow).join('');
@@ -722,23 +737,39 @@ function wireMusicTab() {
     }
   });
 
-  const form = document.getElementById('soundcloud-form');
-  let soundcloud = {};
+  const playlistRowsEl = document.getElementById('playlist-rows');
+
   api('GET', '/api/music/soundcloud').then((data) => {
-    soundcloud = data;
-    form.playlistTitle.value = data.playlistTitle || '';
-    form.embedUrl.value = data.embedUrl || '';
+    const playlists = Array.isArray(data.playlists)
+      ? data.playlists
+      : data.embedUrl ? [{ title: data.playlistTitle || '', embedUrl: data.embedUrl }] : [];
+    playlistRowsEl.innerHTML = playlists.map(renderPlaylistRow).join('');
   });
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
+  playlistRowsEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    const row = btn.closest('.admin-video-row');
+    if (btn.dataset.action === 'remove-playlist') row.remove();
+    if (btn.dataset.action === 'playlist-up' && row.previousElementSibling) playlistRowsEl.insertBefore(row, row.previousElementSibling);
+    if (btn.dataset.action === 'playlist-down' && row.nextElementSibling) playlistRowsEl.insertBefore(row.nextElementSibling, row);
+  });
+
+  document.getElementById('add-playlist-row').addEventListener('click', () => {
+    playlistRowsEl.insertAdjacentHTML('beforeend', renderPlaylistRow({ title: '', embedUrl: '' }));
+    playlistRowsEl.lastElementChild.querySelector('.p-title').focus();
+  });
+
+  document.getElementById('save-playlists').addEventListener('click', async () => {
+    const playlists = Array.from(playlistRowsEl.querySelectorAll('.admin-video-row'))
+      .map((row) => ({
+        title: row.querySelector('.p-title').value.trim(),
+        embedUrl: row.querySelector('.p-url').value.trim(),
+      }))
+      .filter((p) => p.embedUrl);
     try {
-      await api('PUT', '/api/music/soundcloud', {
-        ...soundcloud,
-        playlistTitle: form.playlistTitle.value.trim(),
-        embedUrl: form.embedUrl.value.trim() || null,
-      });
-      toast('SoundCloud saved.');
+      await api('PUT', '/api/music/soundcloud', { playlists });
+      toast('Playlists saved.');
     } catch (err) {
       toast(err.message, true);
     }

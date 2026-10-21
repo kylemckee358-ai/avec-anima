@@ -1,5 +1,16 @@
 {
-  "playlistTitle": "Avec Anima — Selected Sets",
-  "embedUrl": "https://soundcloud.com/rylee-803533464/sets/car-playlist",
-  "profileUrl": "#"
+  "playlists": [
+    {
+      "title": "90’s/Old School Deep",
+      "embedUrl": "https://soundcloud.com/anima-937658688/sets/90s-deep"
+    },
+    {
+      "title": "Old School Garage",
+      "embedUrl": "https://soundcloud.com/anima-937658688/sets/old-school-garage"
+    },
+    {
+      "title": "Breakbeat",
+      "embedUrl": "https://soundcloud.com/anima-937658688/sets/breakbeat"
+    }
+  ]
 }
