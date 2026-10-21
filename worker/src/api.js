@@ -66,6 +66,13 @@ function uniqueSlug(snap, category, baseSlug) {
   return slug;
 }
 
+// The repo is public, so commits name the editor by first name, never by email:
+// "jane.smith@gmail.com" → "Jane", "kylemckee358@gmail.com" → "Kylemckee"
+function editorName(user) {
+  const first = String(user || '').split('@')[0].split(/[._+-]/)[0].replace(/[^a-zA-Z]/g, '');
+  return first ? first[0].toUpperCase() + first.slice(1).toLowerCase() : '';
+}
+
 // Runs a change against the latest commit, retrying if someone else saved in between
 // (with a short random wait, so saves landing together spread out instead of colliding again).
 // Each attempt is about 7 GitHub requests, so 5 attempts stay under the 50-request limit.
@@ -77,7 +84,8 @@ async function save(env, user, fn) {
     const { changes, message, result } = await fn(snap);
     if (!changes.size) return result;
     try {
-      await github.commit(snap, changes, `${message}\n\nSaved in the online admin${user ? ` by ${user}` : ''}`);
+      const name = editorName(user);
+      await github.commit(snap, changes, `${message}\n\nSaved in the online admin${name ? ` by ${name}` : ''}`);
       return result;
     } catch (err) {
       if (!(err instanceof Conflict) || attempt === 5) throw err;
