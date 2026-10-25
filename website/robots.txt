@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://kylemckee358-ai.github.io/avec-anima/sitemap.xml
+Sitemap: https://avecanima.com/sitemap.xml
