@@ -14,6 +14,15 @@ Store: https://kp1kgw-bb.myshopify.com
 - [Events](https://avecanima.com/events.html): Full list of upcoming and previous events
 - [Gallery & After Movies](https://avecanima.com/gallery.html): After movies and photo galleries from past events
 - [Music](https://avecanima.com/music.html): Live sets on YouTube and playlists curated by the Avec Anima selectors on SoundCloud
+- [About](https://avecanima.com/about.html): What Avec Anima is about, and its resident artists
+
+## Founders
+
+- Yeardos (Ammon & Ben Yeardsley) — Founders & Directors: Both directors and selectors, this pair just can’t stop picking up steam. Yeardos are gradually becoming established for bringing life to the dance floor, no matter the audience. Priding themselves on a varied taste of funky, groovy, deep selects.
+
+## Resident artists
+
+- Burg — Resident (Classics · Upbeat heaters): Anima are extremely excited to announce our newest resident DJ, BURG. Formerly known as ½ of Isle of Grooves, Burg has been putting his stamp on both the Manx and UK scene, playing out in various venues across both. Bringing both classics and upbeat heaters into the fold, this guy is one to watch with his expansive mixing skills.
 
 ## Upcoming events
 

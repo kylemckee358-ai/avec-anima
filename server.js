@@ -28,6 +28,8 @@
  *   POST   /api/events/:category/:slug/gallery/delete — remove several photos (json: { files: [...] })
  *   PUT    /api/events/:category/:slug/lineup       — rename/reorder lineup (json: [{ name, photo }])
  *   POST   /api/uploads (+ PUT file, POST finish, GET status) — posters, headshots, photos, films (see lib/upload-rules.js)
+ *   GET    /api/about                           — About page (intro + resident artists)
+ *   PUT    /api/about                           — save About page (json: { intro, founders, artists: [...] }); photos follow as uploads
  *   GET    /api/site                            — site settings (links, page text, Google titles)
  *   PUT    /api/site                            — save site settings (json), rebuilds every page
  *   GET    /api/music/videos                    — read videos.json
@@ -61,6 +63,8 @@ const { removeMatching } = require('./lib/media');
 const { CHUNK_SIZE, newJobId, planJob } = require('./lib/upload-rules');
 const { runJob } = require('./process-uploads');
 const { readSite, writeSite } = require('./lib/site');
+const { readAbout, writeAbout } = require('./lib/about');
+const { findPerson } = require('./lib/about-rules');
 
 const app = express();
 const PORT = 4200;
@@ -340,7 +344,11 @@ app.post('/api/uploads', (req, res) => {
   } catch (err) {
     return res.status(400).json({ error: err.message });
   }
-  if (!fs.existsSync(eventDir(plan.job.category, plan.job.slug))) return res.status(404).json({ error: 'Event not found' });
+  if (plan.job.type === 'resident-photo') {
+    if (!findPerson(readAbout(), plan.job.artist)) return res.status(404).json({ error: 'Save the artist first' });
+  } else if (!fs.existsSync(eventDir(plan.job.category, plan.job.slug))) {
+    return res.status(404).json({ error: 'Event not found' });
+  }
 
   const id = newJobId();
   fs.mkdirSync(uploadDir(id), { recursive: true });
@@ -383,6 +391,22 @@ app.post('/api/uploads/:id/finish', async (req, res) => {
 
 app.get('/api/uploads/:id', (req, res) => {
   res.json(uploadResults.get(req.params.id) || { status: 'failed', message: 'Upload not found' });
+});
+
+// ── About page ───────────────────────────────────────────────────
+app.get('/api/about', (req, res) => {
+  res.json(readAbout());
+});
+
+app.put('/api/about', (req, res) => {
+  let about;
+  try {
+    about = writeAbout(req.body);
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+  writeManifest(); // rebuilds about.html
+  res.json({ ok: true, about });
 });
 
 // ── Site settings ────────────────────────────────────────────────

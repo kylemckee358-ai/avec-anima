@@ -5,7 +5,8 @@
 // (online, every change is also a commit in GitHub's history).
 //
 // Tabs: Events (details, poster, lineup) · Gallery & After Movies (film, photos, Drive link)
-//       · Music (YouTube, SoundCloud) · Site Settings (links, page text, Google titles)
+//       · Music (YouTube, SoundCloud) · About (intro, resident artists)
+//       · Site Settings (links, page text, Google titles)
 
 function escapeAttr(value) {
   return String(value ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
@@ -75,9 +76,10 @@ function plural(n, word) {
   return `${n} ${word}${n === 1 ? '' : 's'}`;
 }
 
+// event is null for About page headshots ('resident-photo')
 async function uploadFiles(event, type, files, { artist, onProgress = () => {} } = {}) {
   const plan = await api('POST', '/api/uploads', {
-    type, category: event.category, slug: event.slug, artist, files: files.map((f) => f.name),
+    type, category: event && event.category, slug: event && event.slug, artist, files: files.map((f) => f.name),
   });
 
   const total = files.reduce((sum, f) => sum + f.size, 0) || 1;
@@ -165,7 +167,7 @@ async function runUpload(event, type, files, { artist, label }) {
 
 // ── Tabs ──────────────────────────────────────────────────────────────
 
-const TABS = ['events', 'gallery', 'music', 'settings'];
+const TABS = ['events', 'gallery', 'music', 'about', 'settings'];
 
 function showTab(name) {
   const tab = TABS.includes(name) ? name : 'events';
@@ -259,7 +261,7 @@ async function loadEvents() {
 }
 
 async function refresh(message) {
-  await loadEvents();
+  await Promise.all([loadEvents(), loadAbout()]);
   if (message) toast(siteMode === 'online' && !message.includes('site') ? `${message} The live site updates in 1–2 minutes.` : message);
 }
 
@@ -880,6 +882,158 @@ function wireMusicTab() {
   });
 }
 
+// ── About tab ────────────────────────────────────────────────────────
+
+let aboutDirty = false; // unsaved edits — don't overwrite them when other changes reload the page data
+
+function renderPhotoPicker(person, wide = false) {
+  const photo = person.photo
+    ? `<img src="${bust(`assets/about/${person.photo}`)}" alt="">`
+    : '<span>No photo</span>';
+  return `
+      <div>
+        <div class="admin-resident__photo${wide ? ' admin-resident__photo--wide' : ''}">${photo}</div>
+        <label class="btn btn--outline btn--small admin-file-btn admin-resident__photo-btn">
+          ${person.photo ? 'Change' : 'Add Photo'}
+          <input type="file" accept="image/*" data-action="resident-photo" hidden>
+        </label>
+      </div>`;
+}
+
+function renderFoundersRow(founders) {
+  return `
+    <div class="admin-resident admin-resident--founders" data-photo="${escapeAttr(founders.photo || '')}">
+      ${renderPhotoPicker(founders, true)}
+      <div>
+        <div class="fields-row admin-resident__fields">
+          <div class="field"><label>Name</label><input type="text" class="r-name" value="${escapeAttr(founders.name)}" placeholder="e.g. Yeardos"></div>
+          <div class="field"><label>Who</label><input type="text" class="r-members" value="${escapeAttr(founders.members)}" placeholder="e.g. Ammon &amp; Ben Yeardsley"></div>
+          <div class="field"><label>Role</label><input type="text" class="r-role" value="${escapeAttr(founders.role)}" placeholder="e.g. Founders &amp; Directors"></div>
+          <div class="field"><label>Music</label><input type="text" class="r-genre" value="${escapeAttr(founders.genre)}" placeholder="e.g. Funky &middot; Groovy &middot; Deep"></div>
+        </div>
+        <div class="field"><label>About them</label><textarea class="r-bio" rows="4" placeholder="Who they are and how Anima started">${escapeHtml(founders.bio)}</textarea></div>
+      </div>
+    </div>
+  `;
+}
+
+function renderResidentRow(artist) {
+  return `
+    <div class="admin-resident" data-photo="${escapeAttr(artist.photo || '')}">
+      ${renderPhotoPicker(artist)}
+      <div>
+        <div class="fields-row admin-resident__fields">
+          <div class="field"><label>Name</label><input type="text" class="r-name" value="${escapeAttr(artist.name)}" placeholder="e.g. Burg"></div>
+          <div class="field"><label>Role</label><input type="text" class="r-role" value="${escapeAttr(artist.role)}" placeholder="e.g. Resident"></div>
+          <div class="field"><label>Music</label><input type="text" class="r-genre" value="${escapeAttr(artist.genre)}" placeholder="e.g. Tech house &middot; Minimal"></div>
+          <div class="field"><label>From</label><input type="text" class="r-from" value="${escapeAttr(artist.from)}" placeholder="e.g. Douglas, Isle of Man"></div>
+        </div>
+        <div class="field"><label>About them</label><textarea class="r-bio" rows="3" placeholder="A few lines about them and their sound">${escapeHtml(artist.bio)}</textarea></div>
+      </div>
+      <div class="admin-resident__controls">
+        <button type="button" class="admin-icon-btn" data-action="resident-up" title="Move up">&#8593;</button>
+        <button type="button" class="admin-icon-btn" data-action="resident-down" title="Move down">&#8595;</button>
+        <button type="button" class="admin-icon-btn admin-icon-btn--danger" data-action="resident-remove" title="Remove">&times;</button>
+      </div>
+    </div>
+  `;
+}
+
+async function loadAbout({ force = false } = {}) {
+  if (aboutDirty && !force) return;
+  const about = await api('GET', '/api/about');
+  document.getElementById('about-form').intro.value = about.intro;
+  document.getElementById('founders-row').innerHTML = renderFoundersRow(about.founders);
+  document.getElementById('resident-rows').innerHTML = about.artists.map(renderResidentRow).join('');
+  aboutDirty = false;
+}
+
+function aboutFromForm() {
+  const form = document.getElementById('about-form');
+  const founders = document.querySelector('#founders-row .admin-resident');
+  return {
+    intro: form.intro.value,
+    founders: {
+      name: founders.querySelector('.r-name').value.trim(),
+      members: founders.querySelector('.r-members').value,
+      role: founders.querySelector('.r-role').value,
+      genre: founders.querySelector('.r-genre').value,
+      bio: founders.querySelector('.r-bio').value,
+      photo: founders.dataset.photo || null,
+    },
+    artists: Array.from(document.querySelectorAll('#resident-rows .admin-resident')).map((row) => ({
+      name: row.querySelector('.r-name').value.trim(),
+      role: row.querySelector('.r-role').value,
+      genre: row.querySelector('.r-genre').value,
+      from: row.querySelector('.r-from').value,
+      bio: row.querySelector('.r-bio').value,
+      photo: row.dataset.photo || null,
+    })),
+  };
+}
+
+async function saveAbout() {
+  await api('PUT', '/api/about', aboutFromForm());
+  aboutDirty = false;
+}
+
+function wireAboutTab() {
+  const form = document.getElementById('about-form');
+  const rowsEl = document.getElementById('resident-rows');
+
+  form.addEventListener('input', () => { aboutDirty = true; });
+
+  rowsEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    const row = btn.closest('.admin-resident');
+    const name = row.querySelector('.r-name').value.trim();
+    if (btn.dataset.action === 'resident-remove') {
+      if (!confirm(`Remove ${name || 'this artist'} from the About page? (Takes effect when you save.)`)) return;
+      row.remove();
+    }
+    if (btn.dataset.action === 'resident-up' && row.previousElementSibling) rowsEl.insertBefore(row, row.previousElementSibling);
+    if (btn.dataset.action === 'resident-down' && row.nextElementSibling) rowsEl.insertBefore(row.nextElementSibling, row);
+    aboutDirty = true;
+  });
+
+  document.getElementById('add-resident').addEventListener('click', () => {
+    rowsEl.insertAdjacentHTML('beforeend', renderResidentRow({ name: '', role: '', genre: '', from: '', bio: '', photo: null }));
+    rowsEl.lastElementChild.querySelector('.r-name').focus();
+    aboutDirty = true;
+  });
+
+  // Choosing a photo saves the page first, so the person exists for the upload to find
+  form.addEventListener('change', async (e) => {
+    if (e.target.dataset.action !== 'resident-photo' || !e.target.files[0]) return;
+    const file = e.target.files[0];
+    const name = e.target.closest('.admin-resident').querySelector('.r-name').value.trim();
+    e.target.value = '';
+    if (!name) {
+      toast('Add a name before adding the photo.', true);
+      return;
+    }
+    try {
+      await saveAbout();
+      await runUpload(null, 'resident-photo', [file], { artist: name, label: `${name}'s headshot` });
+    } catch (err) {
+      toast(err.message, true);
+    }
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      toast('Saving About page…', false, true);
+      await saveAbout();
+      await loadAbout({ force: true });
+      toast(siteMode === 'online' ? 'About page saved. The live site updates in 1–2 minutes.' : 'About page saved.');
+    } catch (err) {
+      toast(err.message, true);
+    }
+  });
+}
+
 // ── Site Settings tab ────────────────────────────────────────────────
 
 const SEO_PAGES = [
@@ -887,6 +1041,7 @@ const SEO_PAGES = [
   ['events.html', 'Events'],
   ['gallery.html', 'Gallery & After Movies'],
   ['music.html', 'Music'],
+  ['about.html', 'About'],
 ];
 
 function renderSeoFields(seo) {
@@ -980,8 +1135,10 @@ wireTabs();
 wireEventsTab();
 wireGalleryTab();
 wireMusicTab();
+wireAboutTab();
 wireSettingsTab();
 loadEvents().catch((err) => toast(siteMode === 'online'
   ? `Couldn't load events (${err.message}) — try reloading the page.`
   : `Couldn't load events — is node server.js running? (${err.message})`, true));
 loadVideos().catch(() => {});
+loadAbout().catch(() => {});

@@ -1196,6 +1196,195 @@ ul { list-style: none; }
   padding: 40px 0;
 }
 
+/* ── ABOUT PAGE ── */
+/* Centred throughout: hero, intro, founders feature, resident cards */
+.page-hero--center .page-hero__content {
+  text-align: center;
+}
+
+.page-hero--center::after {
+  background: linear-gradient(to top, var(--bg) 8%, rgba(10, 10, 10, 0.6) 55%, rgba(10, 10, 10, 0.35));
+}
+
+.section-header--center {
+  justify-content: center;
+  text-align: center;
+}
+
+.about-intro {
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.about-intro p {
+  color: var(--text-secondary);
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+.about-intro p:first-child {
+  color: var(--text);
+  font-size: clamp(20px, 2.4vw, 26px);
+  line-height: 1.45;
+}
+
+.about-intro p + p {
+  margin-top: 1.2em;
+}
+
+/* Photo placeholders (founders + residents) until a headshot is uploaded */
+.about-initials {
+  font-family: var(--font-display);
+  font-size: 88px;
+  line-height: 1;
+  color: #2A2A2A;
+}
+
+.about-placeholder {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* Founders: photo beside text, under the intro */
+.founders {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: clamp(28px, 5vw, 64px);
+  align-items: center;
+  max-width: 1040px;
+  margin: var(--gap) auto 0;
+}
+
+.founders__photo {
+  aspect-ratio: 4 / 3;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: #161616;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.founders__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.founders__name {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(48px, 6vw, 72px);
+  line-height: 0.95;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+.founders__members {
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.founders__body .resident__meta {
+  margin-top: 14px;
+}
+
+.founders__bio {
+  margin-top: 18px;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 760px) {
+  .founders {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+}
+
+/* Resident artists: centred row of cards */
+.about-residents {
+  padding-top: 0;
+}
+
+.residents {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(16px, 2.5vw, 28px);
+}
+
+.resident {
+  flex: 0 1 340px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.resident__photo {
+  aspect-ratio: 4 / 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #161616;
+}
+
+.resident__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.resident__body {
+  padding: 22px 24px 26px;
+}
+
+.resident__role {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.resident__name {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 34px;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+.resident__meta {
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.resident__bio {
+  margin-top: 14px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
 /* ── GALLERY & AFTER MOVIES ── */
 .gallery-intro {
   color: var(--text-secondary);
@@ -2044,6 +2233,54 @@ ul { list-style: none; }
 }
 
 .admin-video-row:first-child .admin-video-row__featured { visibility: visible; }
+
+/* About tab: resident artists */
+.admin-resident {
+  display: grid;
+  grid-template-columns: 96px 1fr auto;
+  gap: 20px;
+  align-items: start;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border);
+}
+.admin-resident:last-child { border-bottom: none; }
+
+.admin-resident__photo {
+  width: 96px;
+  aspect-ratio: 4 / 5;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.admin-resident__photo img { width: 100%; height: 100%; object-fit: cover; }
+.admin-resident__photo--wide { width: 128px; aspect-ratio: 4 / 3; }
+.admin-resident--founders { grid-template-columns: 128px 1fr; padding: 0; border-bottom: none; }
+.admin-resident--founders .admin-resident__photo-btn { width: 128px; }
+.admin-resident__photo-btn { margin-top: 8px; width: 96px; justify-content: center; }
+.admin-resident__fields { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 1100px) { .admin-resident__fields { grid-template-columns: 1fr 1fr; } }
+.admin-resident .field:last-child { margin-bottom: 0; }
+
+.admin-resident__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+@media (max-width: 640px) {
+  .admin-resident { grid-template-columns: 1fr; }
+  .admin-resident__fields { grid-template-columns: 1fr; }
+  .admin-resident__controls { flex-direction: row; }
+}
 
 /* Add Event lineup rows */
 .admin-lineup-row {

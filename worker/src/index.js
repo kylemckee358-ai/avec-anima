@@ -41,6 +41,8 @@ const ROUTES = [
   ['POST', /^\/api\/events\/([a-z]+)\/([a-z0-9-]+)\/gallery\/delete$/, async (c, cat, slug) => api.deletePhotos(c.env, c.user, cat, slug, await c.body())],
   ['PUT', /^\/api\/events\/([a-z]+)\/([a-z0-9-]+)\/gallery\/order$/, async (c, cat, slug) => api.reorderPhotos(c.env, c.user, cat, slug, await c.body())],
 
+  ['GET', /^\/api\/about$/, (c) => api.readAbout(c.env)],
+  ['PUT', /^\/api\/about$/, async (c) => api.writeAbout(c.env, c.user, await c.body())],
   ['GET', /^\/api\/site$/, (c) => api.readSite(c.env)],
   ['PUT', /^\/api\/site$/, async (c) => api.writeSite(c.env, c.user, await c.body())],
   ['GET', /^\/api\/music\/videos$/, (c) => api.readMusic(c.env, 'videos.json', [])],

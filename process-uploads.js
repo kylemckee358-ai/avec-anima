@@ -10,6 +10,7 @@
 //   { "type": "poster",       "category": "upcoming", "slug": "...",      "file": "poster.png" }
 //   { "type": "artist-photo", "category": "upcoming", "slug": "...",      "artist": "Scon", "file": "scon.jpg" }
 //   { "type": "aftermovie",   "category": "previous", "slug": "...",      "file": "film.mov" }
+//   { "type": "resident-photo",                                            "artist": "Burg", "file": "burg.jpg" }  (About page)
 //
 // Uses the same processing as the admin on this Mac (lib/media.js) — server.js calls runJob directly. Writes one result per job to
 // <uploadsDir>/results/<jobId>.json ({ ok, message }) so the admin can show what happened, and lists
@@ -19,7 +20,7 @@ const fs = require('fs');
 const path = require('path');
 
 const { CATEGORIES, eventDir, readEventDetailsRaw, writeManifest } = require('./lib/events-data');
-const { replacePoster, addGalleryPhotos, replaceArtistPhoto, processAftermovie } = require('./lib/media');
+const { replacePoster, addGalleryPhotos, replaceArtistPhoto, replaceResidentPhoto, processAftermovie } = require('./lib/media');
 
 // Only plain filenames inside the job's own folder
 function jobFile(jobDir, name) {
@@ -31,6 +32,12 @@ function jobFile(jobDir, name) {
 
 async function runJob(jobDir, job) {
   const { type, category, slug } = job;
+
+  if (type === 'resident-photo') {
+    await replaceResidentPhoto(job.artist, jobFile(jobDir, job.file));
+    return `Photo updated for ${job.artist}`;
+  }
+
   if (!CATEGORIES.includes(category) || !slug || !fs.existsSync(eventDir(category, slug))) {
     throw new Error(`event ${category}/${slug} not found`);
   }

@@ -5,15 +5,18 @@
 import { GitHub, Conflict } from './github.js';
 import eventRules from '../../lib/event-rules.js';
 import siteRules from '../../lib/site-rules.js';
+import aboutRules from '../../lib/about-rules.js';
 import uploadRules from '../../lib/upload-rules.js';
 
 const { CATEGORIES, AFTERMOVIE_FILE, AFTERMOVIE_POSTER_FILE, PHOTO_FILE, slugify, orderPhotos, scanEvents } = eventRules;
 const { mergeSite, applySiteUpdate } = siteRules;
+const { mergeAbout, findPerson, applyAboutUpdate } = aboutRules;
 const { CHUNK_SIZE, newJobId, planJob } = uploadRules;
 
 const EVENTS = 'website/assets/events';
 const SITE_FILE = 'website/assets/site.json';
 const MUSIC = 'website/assets/music';
+const ABOUT = 'website/assets/about';
 
 export class HttpError extends Error {
   constructor(status, message) {
@@ -286,6 +289,27 @@ export function writeSite(env, user, body) {
   });
 }
 
+export async function readAbout(env) {
+  const snap = await new GitHub(env).snapshot();
+  return mergeAbout(await snap.readJson(`${ABOUT}/about.json`));
+}
+
+export function writeAbout(env, user, body) {
+  return save(env, user, async (snap) => {
+    let update;
+    try {
+      update = applyAboutUpdate(mergeAbout(await snap.readJson(`${ABOUT}/about.json`)), body);
+    } catch (err) {
+      throw new HttpError(400, err.message);
+    }
+    const changes = new Map([[`${ABOUT}/about.json`, json(update.about)]]);
+    for (const photo of update.removedPhotos) {
+      if (snap.has(`${ABOUT}/${photo}`)) changes.set(`${ABOUT}/${photo}`, null);
+    }
+    return { changes, message: 'Update About page', result: { ok: true, about: update.about } };
+  });
+}
+
 export async function readMusic(env, file, fallback) {
   const snap = await new GitHub(env).snapshot();
   return (await snap.readJson(`${MUSIC}/${file}`)) ?? fallback;
@@ -305,7 +329,7 @@ export function writeMusic(env, user, file, body, message) {
 
 function uploadLabel(job) {
   if (job.type === 'gallery') return `${job.files.length} photo${job.files.length === 1 ? '' : 's'}`;
-  if (job.type === 'artist-photo') return `${job.artist}'s headshot`;
+  if (job.type === 'artist-photo' || job.type === 'resident-photo') return `${job.artist}'s headshot`;
   return job.type === 'aftermovie' ? 'film' : 'poster';
 }
 
@@ -328,7 +352,12 @@ export async function startUpload(env, body) {
     throw new HttpError(400, err.message);
   }
   const snap = await new GitHub(env).snapshot();
-  await readDetails(snap, plan.job.category, plan.job.slug);
+  if (plan.job.type === 'resident-photo') {
+    const about = mergeAbout(await snap.readJson(`${ABOUT}/about.json`));
+    if (!findPerson(about, plan.job.artist)) throw new HttpError(404, 'Save the artist first');
+  } else {
+    await readDetails(snap, plan.job.category, plan.job.slug);
+  }
 
   const id = newJobId();
   await env.UPLOADS.put(`plans/${id}.json`, JSON.stringify(plan));

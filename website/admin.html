@@ -21,6 +21,7 @@
         <a href="events.html">Events</a>
         <a href="gallery.html">Gallery &amp; After Movies</a>
         <a href="music.html">Music</a>
+        <a href="about.html">About</a>
         <a data-site-href="storeUrl" href="https://kp1kgw-bb.myshopify.com">Store</a>
         <a href="admin.html" class="is-active">Admin</a>
       </div>
@@ -39,6 +40,7 @@
       <button type="button" class="admin-tab" role="tab" data-tab="events">Events</button>
       <button type="button" class="admin-tab" role="tab" data-tab="gallery">Gallery &amp; After Movies</button>
       <button type="button" class="admin-tab" role="tab" data-tab="music">Music</button>
+      <button type="button" class="admin-tab" role="tab" data-tab="about">About</button>
       <button type="button" class="admin-tab" role="tab" data-tab="settings">Site Settings</button>
     </div>
   </header>
@@ -150,6 +152,37 @@
       </div>
     </section>
 
+    <!-- ── About ── -->
+    <section class="admin-panel" data-panel="about" hidden>
+      <form id="about-form" class="admin-form">
+        <div class="admin-box">
+          <h2 class="admin-box__title">About Text</h2>
+          <p class="admin-note">Shown under the "About" heading. Leave a blank line between paragraphs — the first paragraph is shown larger.</p>
+          <div class="field" style="margin-top: 16px;"><textarea name="intro" rows="9" aria-label="About text"></textarea></div>
+        </div>
+
+        <div class="admin-box">
+          <h2 class="admin-box__title">Founders</h2>
+          <p class="admin-note">The people behind Anima, featured under the About text. Photo: landscape works best (it's shown 4:3) — leave the name blank to hide this section.</p>
+          <div id="founders-row" style="margin-top: 8px;"></div>
+        </div>
+
+        <div class="admin-box">
+          <h2 class="admin-box__title">Resident Artists</h2>
+          <p class="admin-note">Shown on the About page in this order. Headshots: portrait or square, at least 800 px wide, face centred — they're cropped to 4:5.</p>
+          <div id="resident-rows" style="margin-top: 8px;"></div>
+          <div class="admin-actions">
+            <button type="button" id="add-resident" class="btn btn--outline btn--small">Add Artist</button>
+          </div>
+        </div>
+
+        <div class="admin-actions admin-actions--sticky">
+          <button type="submit" class="btn btn--solid btn--small">Save About Page</button>
+          <a class="admin-link" href="about.html" target="_blank" rel="noopener">View About page &#8599;</a>
+        </div>
+      </form>
+    </section>
+
     <!-- ── Site Settings ── -->
     <section class="admin-panel" data-panel="settings" hidden>
       <form id="site-form" class="admin-form">
@@ -214,6 +247,7 @@
           <a href="events.html">Events</a>
           <a href="gallery.html">Gallery &amp; After Movies</a>
           <a href="music.html">Music</a>
+          <a href="about.html">About</a>
           <a data-site-href="storeUrl" href="https://kp1kgw-bb.myshopify.com">Store</a>
         </div>
         <div class="footer__col">
