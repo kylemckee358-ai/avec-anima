@@ -1367,6 +1367,7 @@ ul { list-style: none; }
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center 30%; /* portraits: keep heads in when cropped */
 }
 
 .resident__body {
@@ -1472,6 +1473,7 @@ ul { list-style: none; }
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center 30%; /* portraits: keep heads in when cropped */
 }
 
 .guest__text {
@@ -1554,6 +1556,7 @@ ul { list-style: none; }
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center 30%; /* portraits: keep heads in when cropped */
 }
 
 .guest-detail__body {

@@ -6,7 +6,7 @@
     "role": "Founders & Directors",
     "genre": "Funky · Groovy · Deep",
     "bio": "Both directors and selectors, this pair just can’t stop picking up steam. Yeardos are gradually becoming established for bringing life to the dance floor, no matter the audience. Priding themselves on a varied taste of funky, groovy, deep selects.",
-    "photo": null
+    "photo": "yeardos-mvz3slv3zkaj.jpg"
   },
   "artists": [
     {
@@ -15,7 +15,7 @@
       "genre": "Classics · Upbeat heaters",
       "from": "",
       "bio": "Anima are extremely excited to announce our newest resident DJ, BURG. Formerly known as ½ of Isle of Grooves, Burg has been putting his stamp on both the Manx and UK scene, playing out in various venues across both. Bringing both classics and upbeat heaters into the fold, this guy is one to watch with his expansive mixing skills.",
-      "photo": null
+      "photo": "burg-mvz3t5584h88.jpg"
     },
     {
       "name": "John Bolton",
@@ -33,14 +33,14 @@
       "genre": "",
       "from": "",
       "bio": "",
-      "photo": null
+      "photo": "allan-vannin-mvz3t43zm8zc.jpg"
     },
     {
       "name": "Ben Jones",
       "genre": "",
       "from": "",
       "bio": "",
-      "photo": null
+      "photo": "ben-jones-mvz3t4mtt8eb.jpg"
     },
     {
       "name": "Connor Heath",
@@ -75,7 +75,7 @@
       "genre": "",
       "from": "",
       "bio": "",
-      "photo": null
+      "photo": "hamo-mvz3t67edc20.jpg"
     },
     {
       "name": "Harry Adamson",
@@ -145,7 +145,7 @@
       "genre": "",
       "from": "",
       "bio": "",
-      "photo": null
+      "photo": "tom-doyle-mvz3t764gpb4.jpg"
     },
     {
       "name": "Wints",
@@ -153,6 +153,20 @@
       "from": "",
       "bio": "",
       "photo": null
+    },
+    {
+      "name": "Cadence",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": "cadence-mvz3t5nz785m.jpg"
+    },
+    {
+      "name": "Jimmy G",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": "jimmy-g-mvz3t6p8r4xn.jpg"
     }
   ]
 }

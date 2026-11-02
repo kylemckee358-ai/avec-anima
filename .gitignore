@@ -12,6 +12,7 @@ Photo2.png
 # Source footage/photos — uploaded through admin, which saves compressed copies into website/
 After Movies/
 Photos/
+ARTIST PHOTOS/
 .uploads/
 worker/.dev.vars
 worker/.wrangler/
