@@ -193,7 +193,11 @@
       "from": "",
       "bio": "",
       "photo": "paz-mvz4q1gw8oz1.jpg",
-      "crop": null
+      "crop": {
+        "x": 24.5,
+        "y": 19.9,
+        "zoom": 1.3
+      }
     },
     {
       "name": "PK",
