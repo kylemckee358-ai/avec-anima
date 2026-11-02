@@ -101,7 +101,11 @@
       "from": "",
       "bio": "",
       "photo": "fionn-mvz4pz9sqnj1.jpg",
-      "crop": null
+      "crop": {
+        "x": 53.8,
+        "y": 45.4,
+        "zoom": 1.6
+      }
     },
     {
       "name": "Hamo",
