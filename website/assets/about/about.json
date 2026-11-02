@@ -181,7 +181,11 @@
       "from": "",
       "bio": "",
       "photo": "kyle-mckee-mvz4q1rlt181.jpg",
-      "crop": null
+      "crop": {
+        "x": 54.9,
+        "y": 27.3,
+        "zoom": 1.4
+      }
     },
     {
       "name": "Paz",
