@@ -21,7 +21,7 @@ function renderLineupItem(artist) {
   const names = artistHelpers.artistNames(artist.name);
   const linkWhole = names.length === 1;
   const avatar = artist.photo
-    ? `<img src="${artist.photo}" alt="${name}" loading="lazy">`
+    ? `<img src="${artist.photo}" alt="${name}" loading="lazy"${artistHelpers.photoCropStyle(artist.photoCrop)}>`
     : `<span>${initials(name)}</span>`;
 
   const inner = `

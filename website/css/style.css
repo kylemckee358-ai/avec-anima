@@ -1355,6 +1355,7 @@ ul { list-style: none; }
 
 .resident__photo {
   aspect-ratio: 4 / 5;
+  overflow: hidden; /* keeps a zoomed-in crop inside the frame */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1544,6 +1545,7 @@ ul { list-style: none; }
 .guest-detail__photo {
   align-self: start; /* keep 4:5 even when a long bio makes the tile taller */
   aspect-ratio: 4 / 5;
+  overflow: hidden;
   background: #161616;
   display: flex;
   flex-direction: column;
@@ -2643,6 +2645,85 @@ ul { list-style: none; }
   .admin-resident__fields { grid-template-columns: 1fr; }
   .admin-resident__controls { flex-direction: row; }
 }
+
+/* Crop editor (About tab → Adjust) */
+.crop-dialog {
+  width: min(560px, calc(100% - 32px));
+  margin: auto;
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.crop-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.crop-editor__previews {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+  margin-top: 18px;
+}
+
+.crop-editor__frame {
+  width: 260px;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.crop-editor__frame:active { cursor: grabbing; }
+.crop-editor__frame--wide { width: 100%; aspect-ratio: 4 / 3; }
+
+.crop-editor__frame img,
+.crop-editor__circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.crop-editor__small {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.crop-editor__circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.crop-editor__zoom {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.crop-editor__zoom input {
+  flex: 1;
+  accent-color: var(--text);
+}
+
+.admin-resident__photo-btn + .admin-resident__photo-btn { margin-top: 6px; }
 
 /* Add Event lineup rows */
 .admin-lineup-row {

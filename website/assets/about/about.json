@@ -6,7 +6,8 @@
     "role": "Founders & Directors",
     "genre": "Funky · Groovy · Deep",
     "bio": "Both directors and selectors, this pair just can’t stop picking up steam. Yeardos are gradually becoming established for bringing life to the dance floor, no matter the audience. Priding themselves on a varied taste of funky, groovy, deep selects.",
-    "photo": "yeardos-mvz3slv3zkaj.jpg"
+    "photo": "yeardos-mvz41u614r3t.jpg",
+    "crop": null
   },
   "artists": [
     {
@@ -15,7 +16,12 @@
       "genre": "Classics · Upbeat heaters",
       "from": "",
       "bio": "Anima are extremely excited to announce our newest resident DJ, BURG. Formerly known as ½ of Isle of Grooves, Burg has been putting his stamp on both the Manx and UK scene, playing out in various venues across both. Bringing both classics and upbeat heaters into the fold, this guy is one to watch with his expansive mixing skills.",
-      "photo": "burg-mvz3t5584h88.jpg"
+      "photo": "burg-mvz41rccxvxe.jpg",
+      "crop": {
+        "x": 0,
+        "y": 23.5,
+        "zoom": 1.3
+      }
     },
     {
       "name": "John Bolton",
@@ -23,7 +29,8 @@
       "genre": "Vinyl",
       "from": "",
       "bio": "Strictly wax. John Bolton is the resident who brings the records — vinyl-only sets pulled from his own crates, with the warmth and the surprises that only come from digging.",
-      "photo": null
+      "photo": "john-bolton-mvz4q0hxcz5c.jpg",
+      "crop": null
     }
   ],
   "guestsIntro": "Not everyone plays every night. These are the DJs who've stepped up as guests at Anima — some for one night, some a few times over.",
@@ -33,140 +40,192 @@
       "genre": "",
       "from": "",
       "bio": "",
-      "photo": "allan-vannin-mvz3t43zm8zc.jpg"
+      "photo": "allan-vannin-mvz41q9wnbs4.jpg",
+      "crop": {
+        "x": 65.5,
+        "y": 39.6,
+        "zoom": 2.2
+      }
     },
     {
       "name": "Ben Jones",
       "genre": "",
       "from": "",
       "bio": "",
-      "photo": "ben-jones-mvz3t4mtt8eb.jpg"
-    },
-    {
-      "name": "Connor Heath",
-      "genre": "",
-      "from": "",
-      "bio": "",
-      "photo": null
-    },
-    {
-      "name": "Connor Hislop",
-      "genre": "",
-      "from": "",
-      "bio": "",
-      "photo": null
-    },
-    {
-      "name": "Dunner",
-      "genre": "",
-      "from": "",
-      "bio": "",
-      "photo": null
-    },
-    {
-      "name": "Fionn",
-      "genre": "",
-      "from": "",
-      "bio": "",
-      "photo": null
-    },
-    {
-      "name": "Hamo",
-      "genre": "",
-      "from": "",
-      "bio": "",
-      "photo": "hamo-mvz3t67edc20.jpg"
-    },
-    {
-      "name": "Harry Adamson",
-      "genre": "",
-      "from": "",
-      "bio": "",
-      "photo": null
-    },
-    {
-      "name": "Isle Of Grooves",
-      "genre": "",
-      "from": "",
-      "bio": "",
-      "photo": null
-    },
-    {
-      "name": "Jaime Craig",
-      "genre": "",
-      "from": "",
-      "bio": "",
-      "photo": null
-    },
-    {
-      "name": "Joe Matthews",
-      "genre": "",
-      "from": "",
-      "bio": "",
-      "photo": null
-    },
-    {
-      "name": "Josh Dolton",
-      "genre": "",
-      "from": "",
-      "bio": "",
-      "photo": null
-    },
-    {
-      "name": "Kyle McKee",
-      "genre": "",
-      "from": "",
-      "bio": "",
-      "photo": null
-    },
-    {
-      "name": "Paz",
-      "genre": "",
-      "from": "",
-      "bio": "",
-      "photo": null
-    },
-    {
-      "name": "PK",
-      "genre": "",
-      "from": "",
-      "bio": "",
-      "photo": null
-    },
-    {
-      "name": "Scon",
-      "genre": "",
-      "from": "",
-      "bio": "",
-      "photo": null
-    },
-    {
-      "name": "Tom Doyle",
-      "genre": "",
-      "from": "",
-      "bio": "",
-      "photo": "tom-doyle-mvz3t764gpb4.jpg"
-    },
-    {
-      "name": "Wints",
-      "genre": "",
-      "from": "",
-      "bio": "",
-      "photo": null
+      "photo": "ben-jones-mvz41qtl35pw.jpg",
+      "crop": {
+        "x": 43,
+        "y": 34.1,
+        "zoom": 2
+      }
     },
     {
       "name": "Cadence",
       "genre": "",
       "from": "",
       "bio": "",
-      "photo": "cadence-mvz3t5nz785m.jpg"
+      "photo": "cadence-mvz41ru1v1uj.jpg",
+      "crop": {
+        "x": 49.7,
+        "y": 35.8,
+        "zoom": 1.4
+      }
+    },
+    {
+      "name": "Connor Heath",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null,
+      "crop": null
+    },
+    {
+      "name": "Connor Hislop",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null,
+      "crop": null
+    },
+    {
+      "name": "Dunner",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null,
+      "crop": null
+    },
+    {
+      "name": "Fionn",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": "fionn-mvz4pz9sqnj1.jpg",
+      "crop": null
+    },
+    {
+      "name": "Hamo",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": "hamo-mvz41se2jgek.jpg",
+      "crop": {
+        "x": 0,
+        "y": 31.1,
+        "zoom": 1.2
+      }
+    },
+    {
+      "name": "Harry Adamson",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null,
+      "crop": null
+    },
+    {
+      "name": "Isle Of Grooves",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null,
+      "crop": null
+    },
+    {
+      "name": "Jaime Craig",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": "jaime-craig-mvz4q12sf0dy.jpg",
+      "crop": {
+        "x": 32,
+        "y": 40,
+        "zoom": 1
+      }
     },
     {
       "name": "Jimmy G",
       "genre": "",
       "from": "",
       "bio": "",
-      "photo": "jimmy-g-mvz3t6p8r4xn.jpg"
+      "photo": "jimmy-g-mvz41t11zh6a.jpg",
+      "crop": {
+        "x": 99.6,
+        "y": 28.9,
+        "zoom": 1.1
+      }
+    },
+    {
+      "name": "Joe Matthews",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null,
+      "crop": null
+    },
+    {
+      "name": "Josh Dolton",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null,
+      "crop": null
+    },
+    {
+      "name": "Kyle McKee",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": "kyle-mckee-mvz4q1rlt181.jpg",
+      "crop": null
+    },
+    {
+      "name": "Paz",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": "paz-mvz4q1gw8oz1.jpg",
+      "crop": null
+    },
+    {
+      "name": "PK",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": "pk-mvz4pzhrs7c0.jpg",
+      "crop": null
+    },
+    {
+      "name": "Scon",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": "scon-mvz4pzqyz4au.jpg",
+      "crop": {
+        "x": 85,
+        "y": 40,
+        "zoom": 1
+      }
+    },
+    {
+      "name": "Tom Doyle",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": "tom-doyle-mvz41tj0a6tp.jpg",
+      "crop": {
+        "x": 36.6,
+        "y": 32.3,
+        "zoom": 1.6
+      }
+    },
+    {
+      "name": "Wints",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null,
+      "crop": null
     }
   ]
 }

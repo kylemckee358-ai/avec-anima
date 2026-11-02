@@ -983,7 +983,7 @@ function renderGuestRow(guest, nights, open = false) {
         <span class="admin-row__badges">${badge('Photo', Boolean(guest.photo))}${badge('Bio', Boolean(guest.bio))}</span>
       </summary>
       <div class="admin-item__body">
-        <div class="admin-resident admin-resident--guest" data-photo="${escapeAttr(guest.photo || '')}">
+        <div class="admin-resident admin-resident--guest" ${photoData(guest)}>
           ${renderPhotoPicker(guest)}
           <div>
             <div class="fields-row admin-resident__fields">
@@ -1016,7 +1016,7 @@ function renderGuestRows() {
 
 function renderPhotoPicker(person, wide = false) {
   const photo = person.photo
-    ? `<img src="${bust(`assets/about/${person.photo}`)}" alt="">`
+    ? `<img src="${bust(`assets/about/${person.photo}`)}" alt=""${photoCropStyle(person.crop)}>`
     : '<span>No photo</span>';
   return `
       <div>
@@ -1025,12 +1025,121 @@ function renderPhotoPicker(person, wide = false) {
           ${person.photo ? 'Change' : 'Add Photo'}
           <input type="file" accept="image/*" data-action="resident-photo" hidden>
         </label>
+        ${person.photo ? '<button type="button" class="btn btn--outline btn--small admin-resident__photo-btn" data-action="crop-photo">Adjust</button>' : ''}
       </div>`;
+}
+
+// Photo + crop live on the row as data attributes (the crop as JSON), read back by aboutFromForm
+function photoData(person) {
+  return `data-photo="${escapeAttr(person.photo || '')}" data-crop="${escapeAttr(person.crop ? JSON.stringify(person.crop) : '')}"`;
+}
+
+function rowPhoto(row) {
+  return { photo: row.dataset.photo || null, crop: row.dataset.crop ? JSON.parse(row.dataset.crop) : null };
+}
+
+// ── Crop editor (Adjust button) ──────────────────────────────────────
+// Drag to choose what stays in frame, slider to zoom. Saves { x, y, zoom } with the person —
+// the uploaded photo isn't changed. Previews use the same style the site does (photoCropStyle).
+
+let cropDialog = null;
+
+function openCropEditor(row) {
+  const { photo, crop: saved } = rowPhoto(row);
+  const wide = row.classList.contains('admin-resident--founders');
+  const crop = { ...(saved || { x: 50, y: wide ? 50 : 30, zoom: 1 }) };
+  const name = row.querySelector('.r-name').value.trim() || 'this artist';
+
+  if (!cropDialog) {
+    cropDialog = document.createElement('dialog');
+    cropDialog.className = 'crop-dialog';
+    document.body.appendChild(cropDialog);
+  }
+  const src = bust(`assets/about/${photo}`);
+  cropDialog.innerHTML = `
+    <form method="dialog" class="crop-editor">
+      <h3 class="admin-box__title">Adjust ${escapeHtml(name)}'s photo</h3>
+      <p class="admin-note">Drag the photo to move it, use the slider to zoom in. The original stays as uploaded — you can change this any time.</p>
+      <div class="crop-editor__previews">
+        <div class="crop-editor__frame${wide ? ' crop-editor__frame--wide' : ''}"><img src="${src}" alt="" draggable="false"></div>
+        ${wide ? '' : `<div class="crop-editor__small">
+          <div class="crop-editor__circle"><img src="${src}" alt="" draggable="false"></div>
+          <span class="admin-note">Guest list avatar</span>
+        </div>`}
+      </div>
+      <label class="crop-editor__zoom">Zoom
+        <input type="range" min="1" max="3" step="0.05" value="${crop.zoom}">
+      </label>
+      <div class="admin-actions">
+        <button type="submit" value="save" class="btn btn--solid btn--small">Save</button>
+        <button type="button" data-crop="reset" class="btn btn--outline btn--small">Reset</button>
+        <button type="submit" value="cancel" class="btn btn--outline btn--small">Cancel</button>
+      </div>
+    </form>
+  `;
+
+  const frame = cropDialog.querySelector('.crop-editor__frame');
+  const imgs = cropDialog.querySelectorAll('img');
+  const slider = cropDialog.querySelector('input[type="range"]');
+  const clamp = (n) => Math.min(100, Math.max(0, n));
+
+  function apply() {
+    const at = `${crop.x}% ${crop.y}%`;
+    imgs.forEach((img) => {
+      img.style.objectPosition = at;
+      img.style.transformOrigin = at;
+      img.style.transform = `scale(${crop.zoom})`;
+    });
+  }
+  apply();
+
+  slider.addEventListener('input', () => { crop.zoom = Number(slider.value); apply(); });
+
+  // Dragging moves the photo, so the point kept in frame moves the other way
+  let last = null;
+  frame.addEventListener('pointerdown', (e) => {
+    last = { x: e.clientX, y: e.clientY };
+    frame.setPointerCapture(e.pointerId);
+  });
+  frame.addEventListener('pointermove', (e) => {
+    if (!last) return;
+    const speed = 100 / crop.zoom;
+    crop.x = clamp(crop.x - ((e.clientX - last.x) / frame.clientWidth) * speed);
+    crop.y = clamp(crop.y - ((e.clientY - last.y) / frame.clientHeight) * speed);
+    last = { x: e.clientX, y: e.clientY };
+    apply();
+  });
+  frame.addEventListener('pointerup', () => { last = null; });
+  frame.addEventListener('pointercancel', () => { last = null; });
+
+  cropDialog.querySelector('[data-crop="reset"]').addEventListener('click', () => {
+    Object.assign(crop, { x: 50, y: wide ? 50 : 30, zoom: 1 });
+    slider.value = 1;
+    apply();
+  });
+
+  cropDialog.onclose = async () => {
+    if (cropDialog.returnValue !== 'save') return;
+    const value = { x: Math.round(crop.x * 10) / 10, y: Math.round(crop.y * 10) / 10, zoom: crop.zoom };
+    row.dataset.crop = JSON.stringify(value);
+    const preview = row.querySelector('.admin-resident__photo img');
+    if (preview) preview.outerHTML = `<img src="${src}" alt=""${photoCropStyle(value)}>`;
+    try {
+      toast('Saving…', false, true);
+      await saveAbout();
+      await loadAbout({ force: true });
+      toast(siteMode === 'online' ? `Photo adjusted for ${name}. The live site updates in 1–2 minutes.` : `Photo adjusted for ${name}.`);
+    } catch (err) {
+      toast(err.message, true);
+    }
+  };
+  cropDialog.returnValue = '';
+  cropDialog.showModal();
 }
 
 function renderFoundersRow(founders) {
   return `
-    <div class="admin-resident admin-resident--founders" data-photo="${escapeAttr(founders.photo || '')}">
+    <div class="admin-resident admin-resident--founders" ${photoData(founders)}>
       ${renderPhotoPicker(founders, true)}
       <div>
         <div class="fields-row admin-resident__fields">
@@ -1047,7 +1156,7 @@ function renderFoundersRow(founders) {
 
 function renderResidentRow(artist) {
   return `
-    <div class="admin-resident" data-photo="${escapeAttr(artist.photo || '')}">
+    <div class="admin-resident" ${photoData(artist)}>
       ${renderPhotoPicker(artist)}
       <div>
         <div class="fields-row admin-resident__fields">
@@ -1088,7 +1197,7 @@ function aboutFromForm() {
     genre: row.querySelector('.r-genre').value,
     from: row.querySelector('.r-from').value,
     bio: row.querySelector('.r-bio').value,
-    photo: row.dataset.photo || null,
+    ...rowPhoto(row),
   }));
   return {
     guests,
@@ -1100,7 +1209,7 @@ function aboutFromForm() {
       role: founders.querySelector('.r-role').value,
       genre: founders.querySelector('.r-genre').value,
       bio: founders.querySelector('.r-bio').value,
-      photo: founders.dataset.photo || null,
+      ...rowPhoto(founders),
     },
     artists: Array.from(document.querySelectorAll('#resident-rows .admin-resident')).map((row) => ({
       name: row.querySelector('.r-name').value.trim(),
@@ -1108,7 +1217,7 @@ function aboutFromForm() {
       genre: row.querySelector('.r-genre').value,
       from: row.querySelector('.r-from').value,
       bio: row.querySelector('.r-bio').value,
-      photo: row.dataset.photo || null,
+      ...rowPhoto(row),
     })),
   };
 }
@@ -1123,6 +1232,11 @@ function wireAboutTab() {
   const rowsEl = document.getElementById('resident-rows');
 
   form.addEventListener('input', () => { aboutDirty = true; });
+
+  form.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action="crop-photo"]');
+    if (btn) openCropEditor(btn.closest('.admin-resident'));
+  });
 
   rowsEl.addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-action]');
@@ -1169,7 +1283,7 @@ function wireAboutTab() {
         genre: row.querySelector('.r-genre').value,
         from: row.querySelector('.r-from').value,
         bio: row.querySelector('.r-bio').value,
-        photo: row.dataset.photo || null,
+        ...rowPhoto(row),
       }));
       item.remove();
       toast(`${name} moved to Resident Artists — click Save About Page to keep it.`);

@@ -42,6 +42,14 @@ function linkedArtistNames(full) {
   return artistNames(full).map((n) => `<a class="artist-link" href="${artistHref(n)}">${n}</a>`).join(' b2b ');
 }
 
+// The crop set with the admin's Adjust button ({ x, y, zoom }, see lib/about-rules.js) as an inline
+// style for the <img> — its frame must have overflow: hidden. Empty = the stylesheet's default framing.
+function photoCropStyle(crop) {
+  if (!crop) return '';
+  const at = `${crop.x}% ${crop.y}%`;
+  return ` style="object-position: ${at}; transform-origin: ${at}; transform: scale(${crop.zoom});"`;
+}
+
 function renderEventCard(event, isPrevious) {
   const badge = formatDateBadge(event.date);
   const category = isPrevious ? 'previous' : 'upcoming';
@@ -118,5 +126,5 @@ async function loadEventsManifest() {
 
 // Lets lib/seo.js reuse the card renderer when pre-rendering pages in Node
 if (typeof module !== 'undefined') {
-  module.exports = { renderEventCard, renderUpcomingEmpty, splitArtistName, artistNames, artistSlug, artistHref, linkedArtistNames };
+  module.exports = { renderEventCard, renderUpcomingEmpty, splitArtistName, artistNames, artistSlug, artistHref, linkedArtistNames, photoCropStyle };
 }
