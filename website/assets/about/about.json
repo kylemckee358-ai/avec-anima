@@ -16,6 +16,143 @@
       "from": "",
       "bio": "Anima are extremely excited to announce our newest resident DJ, BURG. Formerly known as ½ of Isle of Grooves, Burg has been putting his stamp on both the Manx and UK scene, playing out in various venues across both. Bringing both classics and upbeat heaters into the fold, this guy is one to watch with his expansive mixing skills.",
       "photo": null
+    },
+    {
+      "name": "John Bolton",
+      "role": "Resident",
+      "genre": "Vinyl",
+      "from": "",
+      "bio": "Strictly wax. John Bolton is the resident who brings the records — vinyl-only sets pulled from his own crates, with the warmth and the surprises that only come from digging.",
+      "photo": null
+    }
+  ],
+  "guestsIntro": "Not everyone plays every night. These are the DJs who've stepped up as guests at Anima — some for one night, some a few times over.",
+  "guests": [
+    {
+      "name": "Allan Vannin",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null
+    },
+    {
+      "name": "Ben Jones",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null
+    },
+    {
+      "name": "Connor Heath",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null
+    },
+    {
+      "name": "Connor Hislop",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null
+    },
+    {
+      "name": "Dunner",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null
+    },
+    {
+      "name": "Fionn",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null
+    },
+    {
+      "name": "Hamo",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null
+    },
+    {
+      "name": "Harry Adamson",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null
+    },
+    {
+      "name": "Isle Of Grooves",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null
+    },
+    {
+      "name": "Jaime Craig",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null
+    },
+    {
+      "name": "Joe Matthews",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null
+    },
+    {
+      "name": "Josh Dolton",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null
+    },
+    {
+      "name": "Kyle McKee",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null
+    },
+    {
+      "name": "Paz",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null
+    },
+    {
+      "name": "PK",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null
+    },
+    {
+      "name": "Scon",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null
+    },
+    {
+      "name": "Tom Doyle",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null
+    },
+    {
+      "name": "Wints",
+      "genre": "",
+      "from": "",
+      "bio": "",
+      "photo": null
     }
   ]
 }

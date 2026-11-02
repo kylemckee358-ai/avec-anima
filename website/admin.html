@@ -50,7 +50,7 @@
     <!-- ── Events ── -->
     <section class="admin-panel" data-panel="events" hidden>
       <div class="admin-toolbar">
-        <p class="admin-note">Click an event to edit its details, poster and lineup.</p>
+        <p class="admin-note">Click an event to edit its details, poster and lineup. Lineup artists are picked from the About tab.</p>
         <button type="button" class="btn btn--solid btn--small" id="toggle-add-event">+ Add Event</button>
       </div>
 
@@ -106,7 +106,7 @@
           <label>Lineup</label>
           <div id="ae-lineup-rows"></div>
           <button type="button" id="ae-add-artist" class="btn btn--outline btn--small" style="margin-top: 8px;">Add Artist</button>
-          <p class="admin-note" style="margin-top: 6px;">Optional — you can add or edit the lineup later. Headshots are optional too: square, at least 600 × 600 px, face centred.</p>
+          <p class="admin-note" style="margin-top: 6px;">Optional — you can add or edit the lineup later. Artists come from the About tab: add new ones there first, with their photo.</p>
         </div>
         <div class="admin-actions">
           <button type="submit" class="btn btn--solid btn--small">Create Event</button>
@@ -159,12 +159,14 @@
           <h2 class="admin-box__title">About Text</h2>
           <p class="admin-note">Shown under the "About" heading. Leave a blank line between paragraphs — the first paragraph is shown larger.</p>
           <div class="field" style="margin-top: 16px;"><textarea name="intro" rows="9" aria-label="About text"></textarea></div>
+          <div class="admin-actions" style="margin-top: 0;"><button type="submit" class="btn btn--solid btn--small">Save</button></div>
         </div>
 
         <div class="admin-box">
           <h2 class="admin-box__title">Founders</h2>
           <p class="admin-note">The people behind Anima, featured under the About text. Photo: landscape works best (it's shown 4:3) — leave the name blank to hide this section.</p>
           <div id="founders-row" style="margin-top: 8px;"></div>
+          <div class="admin-actions" style="margin-top: 0;"><button type="submit" class="btn btn--solid btn--small">Save</button></div>
         </div>
 
         <div class="admin-box">
@@ -172,8 +174,20 @@
           <p class="admin-note">Shown on the About page in this order. Headshots: portrait or square, at least 800 px wide, face centred — they're cropped to 4:5.</p>
           <div id="resident-rows" style="margin-top: 8px;"></div>
           <div class="admin-actions">
-            <button type="button" id="add-resident" class="btn btn--outline btn--small">Add Artist</button>
+            <button type="submit" class="btn btn--solid btn--small">Save</button>
+            <button type="button" id="add-resident" class="btn btn--outline btn--small">Add Resident</button>
           </div>
+        </div>
+
+        <div class="admin-box">
+          <h2 class="admin-box__title">Guest DJs</h2>
+          <p class="admin-note">DJs who play one-offs or now and then. They're listed on the About page, and clicking one opens a tile with their photo, details and the nights they've played. Add someone here before putting them in an event lineup. "Make Resident" moves them up to the residents, photo and all.</p>
+          <div class="field" style="margin-top: 16px;"><label>Text above the list on the About page</label><textarea name="guestsIntro" rows="2"></textarea></div>
+          <div class="admin-actions" style="margin-top: 0;">
+            <button type="submit" class="btn btn--solid btn--small">Save</button>
+            <button type="button" id="add-guest" class="btn btn--outline btn--small">Add Guest DJ</button>
+          </div>
+          <div class="admin-list" id="guest-rows"></div>
         </div>
 
         <div class="admin-actions admin-actions--sticky">
@@ -263,6 +277,7 @@
     </div>
   </footer>
 
+  <script src="js/event-card.js"></script>
   <script src="js/admin.js"></script>
   <script src="js/nav.js"></script>
   <script src="js/version.js"></script>

@@ -258,6 +258,7 @@ async function loadEvents() {
   ];
   renderEventLists();
   renderGalleryList();
+  if (aboutData && !aboutDirty) renderGuestRows(); // guest list comes from the lineups
 }
 
 async function refresh(message) {
@@ -267,18 +268,97 @@ async function refresh(message) {
 
 // ── Events tab ───────────────────────────────────────────────────────
 
+// ── Artist roster ────────────────────────────────────────────────────
+// Artists are created in the About tab (founders, residents, guest DJs); event lineups pick from
+// that list. A lineup entry is still stored as one name — "Allan Vannin (Vinyl Only Set)",
+// "Paz b2b Jaime Craig" — built from the dropdowns below (splitArtistName etc. are in event-card.js).
+
+function rosterGroups() {
+  if (!aboutData) return [];
+  return [
+    ['Founders', aboutData.founders.name ? [aboutData.founders] : []],
+    ['Residents', aboutData.artists],
+    ['Guest DJs', [...aboutData.guests].sort((a, b) => a.name.localeCompare(b.name))],
+  ].filter(([, people]) => people.length);
+}
+
+function rosterPerson(name) {
+  const slug = artistSlug(name || '');
+  for (const [, people] of rosterGroups()) {
+    const found = people.find((p) => artistSlug(p.name) === slug);
+    if (found) return found;
+  }
+  return null;
+}
+
+function artistOptions(selected, blankLabel) {
+  const groups = rosterGroups().map(([label, people]) => `
+    <optgroup label="${label}">
+      ${people.map((p) => `<option value="${escapeAttr(p.name)}"${artistSlug(p.name) === artistSlug(selected || '') ? ' selected' : ''}>${escapeHtml(p.name)}</option>`).join('')}
+    </optgroup>`).join('');
+  // A lineup name that isn't (or is no longer) on the About page stays selectable
+  const missing = selected && !rosterPerson(selected)
+    ? `<option value="${escapeAttr(selected)}" selected>${escapeHtml(selected)} (not on About page)</option>`
+    : '';
+  return `<option value="">${blankLabel}</option>${missing}${groups}`;
+}
+
+function parseLineupName(full) {
+  const [artist = '', b2b = ''] = artistNames(full || '');
+  return { artist, b2b, note: splitArtistName(full || '').note };
+}
+
+function composeLineupName({ artist, b2b, note }) {
+  if (!artist) return '';
+  return `${artist}${b2b ? ` b2b ${b2b}` : ''}${note ? ` (${note})` : ''}`;
+}
+
+// The b2b dropdown stays tucked behind a "+ b2b" button unless the entry already has one
+function lineupPicker(entry) {
+  return `
+    <select class="lineup-artist" aria-label="Artist">${artistOptions(entry.artist, 'Choose artist…')}</select>
+    <span class="lineup-b2b-slot">
+      <button type="button" class="admin-b2b-toggle" data-action="show-b2b"${entry.b2b ? ' hidden' : ''}>+ b2b</button>
+      <select class="lineup-b2b" aria-label="b2b with"${entry.b2b ? '' : ' hidden'}>${artistOptions(entry.b2b, 'No b2b')}</select>
+    </span>
+    <input type="text" class="lineup-note" value="${escapeAttr(entry.note)}" placeholder="Note, e.g. Vinyl Set" aria-label="Note">
+  `;
+}
+
+// "+ b2b" → swap the button for the second dropdown
+function showB2b(e) {
+  const toggle = e.target.closest('[data-action="show-b2b"]');
+  if (!toggle) return false;
+  const select = toggle.parentElement.querySelector('.lineup-b2b');
+  toggle.hidden = true;
+  select.hidden = false;
+  select.focus();
+  return true;
+}
+
+function readLineupPicker(row) {
+  return composeLineupName({
+    artist: row.querySelector('.lineup-artist').value,
+    b2b: row.querySelector('.lineup-b2b').value,
+    note: row.querySelector('.lineup-note').value.trim(),
+  });
+}
+
+function rosterThumb(name) {
+  const person = rosterPerson(name);
+  return person && person.photo
+    ? `<img src="${bust(`assets/about/${person.photo}`)}" alt="">`
+    : `<span>${escapeHtml(artistNames(name || '?').map((n) => n[0]).join('').toUpperCase())}</span>`;
+}
+
+const ROSTER_HINT = 'Artists come from the About tab — add new ones there first (as a resident or guest DJ). Their photo there is used on the event page.';
+
 function renderLineupEditor(event) {
   const lineup = event.lineup || [];
   const rows = lineup.map((artist, i) => `
     <div class="admin-lineup-item" data-index="${i}">
-      <div class="admin-lineup-item__photo">
-        ${artist.photo ? `<img src="${bust(artist.photo)}" alt="">` : '<span>N/A</span>'}
-      </div>
-      <input type="text" class="lineup-name" value="${escapeAttr(artist.name)}" aria-label="Artist name">
-      <label class="btn btn--outline btn--small admin-file-btn">
-        ${artist.photo ? 'Change Photo' : 'Add Photo'}
-        <input type="file" accept="image/*" data-action="artist-photo" hidden>
-      </label>
+      <div class="admin-lineup-item__photo">${rosterThumb(artistNames(artist.name)[0])}</div>
+      ${lineupPicker(parseLineupName(artist.name))}
       <div class="admin-lineup-item__order">
         <button type="button" class="admin-icon-btn" data-action="artist-up" title="Move up" ${i === 0 ? 'disabled' : ''}>&#8593;</button>
         <button type="button" class="admin-icon-btn" data-action="artist-down" title="Move down" ${i === lineup.length - 1 ? 'disabled' : ''}>&#8595;</button>
@@ -291,14 +371,11 @@ function renderLineupEditor(event) {
     <div class="admin-lineup">
       ${rows || '<p class="admin-note">No lineup artists yet.</p>'}
     </div>
-    <p class="admin-note" style="margin-top: 8px;">Names save when you click away from the box. Lineup order is the order shown on the event page. Headshots: square, at least 600 × 600 px, face centred.</p>
-    <form class="add-artist-form admin-inline-form">
-      <input type="text" name="name" placeholder="New artist name" required>
-      <label class="btn btn--outline btn--small admin-file-btn">
-        Headshot (optional)
-        <input type="file" name="photo" accept="image/*" hidden>
-      </label>
-      <button type="submit" class="btn btn--outline btn--small">Add Artist</button>
+    <p class="admin-note" style="margin-top: 8px;">Changes save as soon as you pick. Lineup order is the order shown on the event page. ${ROSTER_HINT}</p>
+    <form class="add-artist-form admin-lineup-item admin-lineup-item--new">
+      <div class="admin-lineup-item__photo"><span>+</span></div>
+      ${lineupPicker({ artist: '', b2b: '', note: '' })}
+      <button type="submit" class="btn btn--outline btn--small">Add to Lineup</button>
     </form>
   `;
 }
@@ -315,7 +392,7 @@ function renderEventEditor(event) {
       ])}
       <div class="admin-item__body">
         <div class="admin-item__grid">
-          <form class="edit-event-form admin-form">
+          <form class="edit-event-form admin-form" id="edit-${event.category}-${event.slug}">
             <h3 class="admin-subtitle">Details</h3>
             <div class="field"><label>Event Name</label><input type="text" name="name" value="${escapeAttr(event.name)}" required></div>
             <div class="fields-row">
@@ -328,7 +405,6 @@ function renderEventEditor(event) {
             </div>
             <div class="field"><label>Ticket Link</label><input type="text" name="ticketLink" value="${escapeAttr(event.ticketLink)}" placeholder="https://... or # if not ready yet"></div>
             <div class="field"><label>Description</label><textarea name="description" rows="4">${escapeHtml(event.description)}</textarea></div>
-            <button type="submit" class="btn btn--solid btn--small">Save Details</button>
           </form>
 
           <div>
@@ -349,6 +425,8 @@ function renderEventEditor(event) {
           <a class="admin-link" href="${event.page}" target="_blank" rel="noopener">View event page &#8599;</a>
           <span class="admin-item__footer-actions">
             <button type="button" class="btn btn--outline btn--small" data-action="move" data-to-category="${otherCategory}">${moveLabel}</button>
+            <!-- Down here with the other actions; form= ties it to the Details form above -->
+            <button type="submit" class="btn btn--solid btn--small" form="edit-${event.category}-${event.slug}">Save Details</button>
             <button type="button" class="btn btn--danger btn--small" data-action="delete">Delete Event</button>
           </span>
         </div>
@@ -384,6 +462,7 @@ function wireEventsTab() {
   const panel = document.querySelector('[data-panel="events"]');
 
   panel.addEventListener('click', async (e) => {
+    if (showB2b(e)) return;
     const btn = e.target.closest('button[data-action]');
     const item = btn && btn.closest('.admin-item');
     if (!item) return;
@@ -415,27 +494,25 @@ function wireEventsTab() {
     }
   });
 
-  // Artist names save when the box loses focus
+  // Lineup dropdowns save as soon as they change (the "Add to Lineup" row waits for its button)
   panel.addEventListener('change', async (e) => {
     const item = e.target.closest('.admin-item');
     if (!item) return;
     const event = findEvent(item.dataset.category, item.dataset.slug);
 
     try {
-      if (e.target.classList.contains('lineup-name')) {
-        const index = Number(e.target.closest('.admin-lineup-item').dataset.index);
-        const name = e.target.value.trim();
+      const row = e.target.closest('.admin-lineup-item[data-index]');
+      if (row && e.target.matches('.lineup-artist, .lineup-b2b, .lineup-note')) {
+        const index = Number(row.dataset.index);
+        const name = readLineupPicker(row);
         if (!name) {
-          toast('Artist name can\'t be empty — use × to remove them.', true);
-          e.target.value = event.lineup[index].name;
+          toast('Choose an artist — use × to remove them from the lineup.', true);
+          e.target.value = parseLineupName(event.lineup[index].name)[e.target.classList.contains('lineup-artist') ? 'artist' : 'b2b'];
           return;
         }
         const lineup = lineupFromEvent(event);
         lineup[index].name = name;
-        await saveLineup(event, lineup, 'Artist renamed.');
-      } else if (e.target.dataset.action === 'artist-photo' && e.target.files[0]) {
-        const index = Number(e.target.closest('.admin-lineup-item').dataset.index);
-        await runUpload(event, 'artist-photo', [e.target.files[0]], { artist: event.lineup[index].name, label: 'headshot' });
+        await saveLineup(event, lineup, 'Lineup updated.');
       } else if (e.target.dataset.action === 'poster' && e.target.files[0]) {
         await runUpload(event, 'poster', [e.target.files[0]], { label: 'poster' });
       }
@@ -456,11 +533,13 @@ function wireEventsTab() {
         await api('PUT', apiBase(event), Object.fromEntries(new FormData(form).entries()));
         await refresh('Details saved.');
       } else if (form.classList.contains('add-artist-form')) {
-        const name = form.name.value.trim();
-        const photo = form.photo.files[0];
+        const name = readLineupPicker(form);
+        if (!name) {
+          toast('Choose an artist to add.', true);
+          return;
+        }
         await api('POST', `${apiBase(event)}/lineup`, { name });
-        if (photo) await runUpload(event, 'artist-photo', [photo], { artist: name, label: 'headshot' });
-        else await refresh('Artist added.');
+        await refresh(`Added ${name} to the lineup.`);
       }
     } catch (err) {
       toast(err.message, true);
@@ -470,12 +549,11 @@ function wireEventsTab() {
   wireAddEventForm();
 }
 
-function renderAddEventArtistRow(index) {
+function renderAddEventArtistRow() {
   return `
-    <div class="admin-lineup-row" data-index="${index}">
-      <div class="field" style="margin-bottom: 0;"><label>Artist Name</label><input type="text" name="artistName_${index}" placeholder="e.g. Yeardos"></div>
-      <div class="field" style="margin-bottom: 0;"><label>Headshot (optional)</label><input type="file" name="artistPhoto_${index}" accept="image/*"></div>
-      <button type="button" class="btn btn--danger btn--small" data-action="remove-artist-row">Remove</button>
+    <div class="admin-lineup-item admin-lineup-item--new-event">
+      ${lineupPicker({ artist: '', b2b: '', note: '' })}
+      <button type="button" class="admin-icon-btn admin-icon-btn--danger" data-action="remove-artist-row" title="Remove">&times;</button>
     </div>
   `;
 }
@@ -483,12 +561,10 @@ function renderAddEventArtistRow(index) {
 function wireAddEventForm() {
   const form = document.getElementById('add-event-form');
   const rowsEl = document.getElementById('ae-lineup-rows');
-  let nextArtistIndex = 0;
 
   function closeForm() {
     form.reset();
     rowsEl.innerHTML = '';
-    nextArtistIndex = 0;
     form.hidden = true;
   }
 
@@ -499,13 +575,12 @@ function wireAddEventForm() {
   document.getElementById('cancel-add-event').addEventListener('click', closeForm);
 
   document.getElementById('ae-add-artist').addEventListener('click', () => {
-    rowsEl.insertAdjacentHTML('beforeend', renderAddEventArtistRow(nextArtistIndex));
-    nextArtistIndex += 1;
+    rowsEl.insertAdjacentHTML('beforeend', renderAddEventArtistRow());
   });
 
   rowsEl.addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-action="remove-artist-row"]');
-    if (btn) btn.closest('.admin-lineup-row').remove();
+    if (btn) btn.closest('.admin-lineup-item').remove();
   });
 
   form.addEventListener('submit', async (e) => {
@@ -518,19 +593,13 @@ function wireAddEventForm() {
       const name = form.name.value;
       const fields = ['category', 'name', 'date', 'startTime', 'endTime', 'location', 'ticketLink', 'description'];
       const body = Object.fromEntries(fields.map((f) => [f, form[f].value]));
-      const artists = Array.from(rowsEl.querySelectorAll('.admin-lineup-row'))
-        .map((row) => ({ name: row.querySelector('input[type="text"]').value.trim(), photo: row.querySelector('input[type="file"]').files[0] }))
-        .filter((a) => a.name);
-      body.lineup = artists.map((a) => a.name);
+      body.lineup = Array.from(rowsEl.querySelectorAll('.admin-lineup-item')).map(readLineupPicker).filter(Boolean);
       const poster = form.poster.files[0];
 
       const result = await api('POST', '/api/events', body);
       closeForm();
-      // Poster and headshots follow as uploads, against the event that now exists
+      // The poster follows as an upload, against the event that now exists
       await runUpload(result, 'poster', [poster], { label: 'poster' });
-      for (const artist of artists.filter((a) => a.photo)) {
-        await runUpload(result, 'artist-photo', [artist.photo], { artist: artist.name, label: `${artist.name}'s headshot` });
-      }
       await refresh(siteMode === 'online'
         ? `Created "${name}" — it goes on the site once its poster is processed, usually within 5 minutes.`
         : `Created "${name}".`);
@@ -885,6 +954,65 @@ function wireMusicTab() {
 // ── About tab ────────────────────────────────────────────────────────
 
 let aboutDirty = false; // unsaved edits — don't overwrite them when other changes reload the page data
+let aboutData = null; // as last loaded from the server
+
+// How many event lineups each artist is in (by slug) — shown on the guest rows
+function nightsBySlug() {
+  const counts = new Map();
+  for (const event of events) {
+    const seen = new Set();
+    for (const entry of event.lineup || []) {
+      for (const name of artistNames(entry.name)) seen.add(artistSlug(name));
+    }
+    for (const slug of seen) counts.set(slug, (counts.get(slug) || 0) + 1);
+  }
+  return counts;
+}
+
+let newGuestKey = 0;
+
+function renderGuestRow(guest, nights, open = false) {
+  const key = guest.name ? `guest/${artistSlug(guest.name)}` : `guest/new-${newGuestKey++}`;
+  return `
+    <details class="admin-item admin-guest" data-key="${key}"${open ? ' open' : ''}>
+      <summary class="admin-row">
+        <span class="admin-row__text">
+          <span class="admin-row__title">${escapeHtml(guest.name || 'New guest DJ')}</span>
+          <span class="admin-row__meta">${nights ? `In ${plural(nights, 'lineup')}` : 'Not in a lineup yet'}</span>
+        </span>
+        <span class="admin-row__badges">${badge('Photo', Boolean(guest.photo))}${badge('Bio', Boolean(guest.bio))}</span>
+      </summary>
+      <div class="admin-item__body">
+        <div class="admin-resident admin-resident--guest" data-photo="${escapeAttr(guest.photo || '')}">
+          ${renderPhotoPicker(guest)}
+          <div>
+            <div class="fields-row admin-resident__fields">
+              <div class="field"><label>Name</label><input type="text" class="r-name" value="${escapeAttr(guest.name)}" placeholder="e.g. Fionn"></div>
+              <div class="field"><label>Music</label><input type="text" class="r-genre" value="${escapeAttr(guest.genre)}" placeholder="e.g. Deep house"></div>
+              <div class="field"><label>From</label><input type="text" class="r-from" value="${escapeAttr(guest.from)}" placeholder="e.g. Ramsey"></div>
+            </div>
+            <div class="field"><label>About them</label><textarea class="r-bio" rows="3" placeholder="A few lines about them and their sound">${escapeHtml(guest.bio)}</textarea></div>
+            <div class="admin-actions" style="margin-top: 0;">
+              <button type="button" class="btn btn--outline btn--small" data-action="guest-promote">Make Resident</button>
+              <button type="button" class="btn btn--danger btn--small" data-action="guest-remove">Remove</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
+  `;
+}
+
+function renderGuestRows() {
+  const container = document.getElementById('guest-rows');
+  const keys = openKeys(container);
+  const nights = nightsBySlug();
+  const guests = [...aboutData.guests].sort((a, b) => a.name.localeCompare(b.name));
+  container.innerHTML = guests.length
+    ? guests.map((g) => renderGuestRow(g, nights.get(artistSlug(g.name)) || 0)).join('')
+    : '<p class="admin-note">No guest DJs yet.</p>';
+  restoreOpen(container, keys);
+}
 
 function renderPhotoPicker(person, wide = false) {
   const photo = person.photo
@@ -942,17 +1070,30 @@ function renderResidentRow(artist) {
 async function loadAbout({ force = false } = {}) {
   if (aboutDirty && !force) return;
   const about = await api('GET', '/api/about');
+  aboutData = about;
   document.getElementById('about-form').intro.value = about.intro;
+  document.getElementById('about-form').guestsIntro.value = about.guestsIntro;
   document.getElementById('founders-row').innerHTML = renderFoundersRow(about.founders);
   document.getElementById('resident-rows').innerHTML = about.artists.map(renderResidentRow).join('');
+  renderGuestRows();
   aboutDirty = false;
+  renderEventLists(); // lineup dropdowns list these artists
 }
 
 function aboutFromForm() {
   const form = document.getElementById('about-form');
   const founders = document.querySelector('#founders-row .admin-resident');
+  const guests = Array.from(document.querySelectorAll('#guest-rows .admin-resident')).map((row) => ({
+    name: row.querySelector('.r-name').value.trim(),
+    genre: row.querySelector('.r-genre').value,
+    from: row.querySelector('.r-from').value,
+    bio: row.querySelector('.r-bio').value,
+    photo: row.dataset.photo || null,
+  }));
   return {
+    guests,
     intro: form.intro.value,
+    guestsIntro: form.guestsIntro.value,
     founders: {
       name: founders.querySelector('.r-name').value.trim(),
       members: founders.querySelector('.r-members').value,
@@ -995,6 +1136,51 @@ function wireAboutTab() {
     if (btn.dataset.action === 'resident-up' && row.previousElementSibling) rowsEl.insertBefore(row, row.previousElementSibling);
     if (btn.dataset.action === 'resident-down' && row.nextElementSibling) rowsEl.insertBefore(row.nextElementSibling, row);
     aboutDirty = true;
+  });
+
+  const guestsEl = document.getElementById('guest-rows');
+
+  document.getElementById('add-guest').addEventListener('click', () => {
+    guestsEl.querySelector('p.admin-note')?.remove();
+    guestsEl.insertAdjacentHTML('afterbegin', renderGuestRow({ name: '', genre: '', from: '', bio: '', photo: null }, 0, true));
+    guestsEl.firstElementChild.querySelector('.r-name').focus();
+    aboutDirty = true;
+  });
+
+  guestsEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    const item = btn.closest('.admin-guest');
+    const row = item.querySelector('.admin-resident');
+    const name = row.querySelector('.r-name').value.trim();
+    if (btn.dataset.action === 'guest-remove') {
+      const inLineups = nightsBySlug().get(artistSlug(name)) || 0;
+      const warning = inLineups ? ` They're in ${plural(inLineups, 'event lineup')} — they'll stay listed there.` : '';
+      if (!confirm(`Remove ${name || 'this guest DJ'} from the About page?${warning} (Takes effect when you save.)`)) return;
+      item.remove();
+    } else if (btn.dataset.action === 'guest-promote') {
+      if (!name) {
+        toast('Give them a name first.', true);
+        return;
+      }
+      rowsEl.insertAdjacentHTML('beforeend', renderResidentRow({
+        name,
+        role: 'Resident',
+        genre: row.querySelector('.r-genre').value,
+        from: row.querySelector('.r-from').value,
+        bio: row.querySelector('.r-bio').value,
+        photo: row.dataset.photo || null,
+      }));
+      item.remove();
+      toast(`${name} moved to Resident Artists — click Save About Page to keep it.`);
+    }
+    aboutDirty = true;
+  });
+
+  // Keep a new guest's row title in step with their name
+  guestsEl.addEventListener('input', (e) => {
+    if (!e.target.classList.contains('r-name')) return;
+    e.target.closest('.admin-guest').querySelector('.admin-row__title').textContent = e.target.value.trim() || 'New guest DJ';
   });
 
   document.getElementById('add-resident').addEventListener('click', () => {

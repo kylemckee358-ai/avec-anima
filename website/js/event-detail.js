@@ -8,31 +8,32 @@ function formatFullDate(dateStr) {
   });
 }
 
-// "John Bolton (Vinyl Set)" → name "John Bolton", note "Vinyl Set"
-function splitArtistName(full) {
-  const match = full.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
-  return match ? { name: match[1], note: match[2] } : { name: full, note: '' };
-}
+// Artist name helpers live in event-card.js (loaded first in the browser, required in Node)
+const artistHelpers = typeof module !== 'undefined' ? require('./event-card') : window;
 
 function initials(name) {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
 }
 
+// Links to the artist on the About page — the whole pill, or each name for a b2b
 function renderLineupItem(artist) {
-  const { name, note } = splitArtistName(artist.name);
+  const { name, note } = artistHelpers.splitArtistName(artist.name);
+  const names = artistHelpers.artistNames(artist.name);
+  const linkWhole = names.length === 1;
   const avatar = artist.photo
     ? `<img src="${artist.photo}" alt="${name}" loading="lazy">`
     : `<span>${initials(name)}</span>`;
 
-  return `
-    <li class="lineup-item">
+  const inner = `
       <span class="lineup-item__avatar">${avatar}</span>
       <span class="lineup-item__text">
-        <span class="lineup-item__name">${name}</span>
+        <span class="lineup-item__name">${linkWhole ? name : artistHelpers.linkedArtistNames(artist.name)}</span>
         ${note ? `<span class="lineup-item__note">${note}</span>` : ''}
       </span>
-    </li>
   `;
+  return linkWhole
+    ? `<li><a class="lineup-item lineup-item--link" href="${artistHelpers.artistHref(name)}">${inner}</a></li>`
+    : `<li class="lineup-item">${inner}</li>`;
 }
 
 // Poster on the left; everything else (name, details, lineup) in one column beside it
