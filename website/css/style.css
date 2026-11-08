@@ -504,6 +504,11 @@ ul { list-style: none; }
   justify-content: center;
 }
 
+/* Home page — next event shown in full, others as cards below */
+.home-more-label {
+  margin: clamp(48px, 6vw, 72px) 0 20px;
+}
+
 /* ── LINEUP (slim rows beside the poster) ── */
 .event-detail__lineup {
   margin-top: 28px;
@@ -1543,8 +1548,8 @@ ul { list-style: none; }
 }
 
 .guest-detail__photo {
-  align-self: start; /* keep 4:5 even when a long bio makes the tile taller */
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 4 / 5; /* the photo sets the tile's height — a long bio/nights list scrolls beside it */
+  max-height: calc(100vh - 34px);
   overflow: hidden;
   background: #161616;
   display: flex;
@@ -1563,7 +1568,13 @@ ul { list-style: none; }
 
 .guest-detail__body {
   padding: clamp(28px, 4vw, 44px);
-  align-self: center;
+  /* height 0 + min-height 100%: takes the photo's height without stretching the tile */
+  height: 0;
+  min-height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: safe center;
 }
 
 .guest-detail__name {
@@ -1639,6 +1650,10 @@ ul { list-style: none; }
   }
   .guest-detail__photo {
     aspect-ratio: 1;
+  }
+  .guest-detail__body {
+    height: auto;
+    overflow: visible;
   }
 }
 

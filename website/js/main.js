@@ -1,4 +1,4 @@
-// Home page — renders the next 3 upcoming events + Music/SoundCloud teasers
+// Home page — renders the next upcoming event in full (plus any others as cards) + Music/SoundCloud teasers
 
 (async function () {
   const container = document.getElementById('home-upcoming-events');
@@ -11,7 +11,7 @@
       return;
     }
 
-    container.innerHTML = upcoming.slice(0, 3).map((event) => renderEventCard(event, false)).join('');
+    container.innerHTML = renderHomeUpcoming(upcoming);
   } catch (err) {
     container.innerHTML = '<p class="events-empty">Couldn\'t load events. Refresh to try again.</p>';
     console.error(err);

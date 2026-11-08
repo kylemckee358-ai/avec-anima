@@ -36,8 +36,11 @@ function renderLineupItem(artist) {
     : `<li class="lineup-item">${inner}</li>`;
 }
 
-// Poster on the left; everything else (name, details, lineup) in one column beside it
-function renderEventDetail(event, isPrevious) {
+// Poster on the left; everything else (name, details, lineup) in one column beside it.
+// opts.heading — tag for the event name (the home page already has its own h1)
+// opts.label — false hides the "Upcoming" label when the section title already says it
+function renderEventDetail(event, isPrevious, opts = {}) {
+  const heading = opts.heading || 'h1';
   const cta = isPrevious
     ? `<span class="btn btn--muted">Past Event</span>`
     : `<a href="${event.ticketLink}" target="_blank" rel="noopener" class="btn btn--solid">Buy Tickets</a>`;
@@ -56,8 +59,8 @@ function renderEventDetail(event, isPrevious) {
       </div>
 
       <div class="event-detail__info">
-        <p class="section-label">${isPrevious ? 'Past Event' : 'Upcoming'}</p>
-        <h1 class="event-detail__name">${event.name}</h1>
+        ${opts.label === false ? '' : `<p class="section-label">${isPrevious ? 'Past Event' : 'Upcoming'}</p>`}
+        <${heading} class="event-detail__name">${event.name}</${heading}>
         ${event.description ? `<p class="event-detail__description">${event.description}</p>` : ''}
 
         <div class="event-detail__card">
@@ -90,8 +93,22 @@ function renderEventDetail(event, isPrevious) {
   `;
 }
 
-if (typeof document !== 'undefined') (async function () {
-  const root = document.getElementById('event-root');
+// Home page: the next event shown in full, any others after it as cards
+function renderHomeUpcoming(upcoming) {
+  const [next, ...more] = upcoming;
+  const cards = typeof renderEventCard === 'function' ? renderEventCard : artistHelpers.renderEventCard;
+  return `
+    <div class="home-next-event">${renderEventDetail(next, false, { heading: 'h3', label: false })}</div>
+    ${more.length ? `
+      <p class="section-label home-more-label">Also Coming Up</p>
+      <div class="event-grid">${more.slice(0, 3).map((e) => cards(e, false)).join('')}</div>
+    ` : ''}
+  `;
+}
+
+const eventRoot = typeof document !== 'undefined' && document.getElementById('event-root');
+if (eventRoot) (async function () {
+  const root = eventRoot;
   const params = new URLSearchParams(window.location.search);
   const requestedCategory = params.get('category');
   const slug = params.get('slug');
@@ -139,5 +156,5 @@ if (typeof document !== 'undefined') (async function () {
 
 // Lets lib/seo.js reuse the detail renderer when pre-rendering event pages in Node
 if (typeof module !== 'undefined') {
-  module.exports = { renderEventDetail };
+  module.exports = { renderEventDetail, renderHomeUpcoming };
 }
