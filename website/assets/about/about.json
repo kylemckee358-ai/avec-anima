@@ -36,11 +36,11 @@
   "guestsIntro": "Not everyone plays every night. These are the DJs who've stepped up as guests at Anima — some for one night, some a few times over.",
   "guests": [
     {
-      "name": "Matt Littman",
-      "genre": "Minimal / Deep Tech, House, UK Garage and Breakbeat",
-      "from": "LONDON, UK",
-      "bio": "Hailing from the UK, Matt Littman is a DJ and producer making waves across the underground house scene. Drawing influence from UK Garage, 90s house and breakbeat, his sound blends infectious rhythms, rolling grooves and distinctive minimal influences. With releases on respected labels including You&Me, neXup and Half Bloom, alongside support from industry names such as Chris Stussy, Josh Baker and Jamie Jones, Matt continues to establish himself as an exciting name in the UK underground circuit.",
-      "photo": "matt-littman-mw76uz7ck673.jpg",
+      "name": "Will Kneale",
+      "genre": "Minimal House, Tech House, UK Garage and Deep Tech",
+      "from": "Isle of Man",
+      "bio": "Hailing from the Isle of Man, Will Kneale is a DJ and promoter with deep roots in the local and UK underground scene. Known for his groove-led selections, his sound blends jumpy UK Garage, 90s/00s Tech House and stripped-back minimal rollers. As the founder of TRONIK, Will has played a key role in showcasing both local and international talent, bringing high-energy underground sounds to dancefloors across the Isle of Man and the UK.",
+      "photo": null,
       "crop": null
     },
     {
@@ -194,6 +194,14 @@
         "y": 27.3,
         "zoom": 1.4
       }
+    },
+    {
+      "name": "Matt Littman",
+      "genre": "Minimal / Deep Tech, House, UK Garage and Breakbeat",
+      "from": "LONDON, UK",
+      "bio": "Hailing from the UK, Matt Littman is a DJ and producer making waves across the underground house scene. Drawing influence from UK Garage, 90s house and breakbeat, his sound blends infectious rhythms, rolling grooves and distinctive minimal influences. With releases on respected labels including You&Me, neXup and Half Bloom, alongside support from industry names such as Chris Stussy, Josh Baker and Jamie Jones, Matt continues to establish himself as an exciting name in the UK underground circuit.",
+      "photo": "matt-littman-mw76uz7ck673.jpg",
+      "crop": null
     },
     {
       "name": "Paz",
