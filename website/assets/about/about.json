@@ -1,5 +1,5 @@
 {
-  "intro": "Avec Anima is an underground house and tech house night on the Isle of Man, running events at venues across the island — from Douglas clubs to one-off nights in the glens. No two are the same.\n\nIt all starts with the music: selectors who dig deep, a properly tuned sound and a crowd that comes to dance. The posters, the films and the photos all come from the same place — so every night feels like Anima from the first announcement to the last record.",
+  "intro": "Anima is an underground house music brand on the Isle of Man, curating unique events at venues across the island. From Douglas clubs to one-off nights in the glens, no two are the same.\n\n​It all starts with the music: we bring Manx DJs and UK connections together to create the Anima experience - good people, quality sound, and high energy from start to finish. We design our events to create a space where everyone can feel free, be themselves, and just turn up for the tunes.\n\nVenue setups, posters, films, and photos - it all stems from the same vision. From the first drop of the announcement to the final tune of the night, every Anima event is crafted to be a completely unique experience.",
   "founders": {
     "name": "Yeardos",
     "members": "Ammon & Ben Yeardsley",
@@ -35,14 +35,6 @@
   ],
   "guestsIntro": "Not everyone plays every night. These are the DJs who've stepped up as guests at Anima — some for one night, some a few times over.",
   "guests": [
-    {
-      "name": "Will Kneale",
-      "genre": "Minimal House, Tech House, UK Garage and Deep Tech",
-      "from": "Isle of Man",
-      "bio": "Hailing from the Isle of Man, Will Kneale is a DJ and promoter with deep roots in the local and UK underground scene. Known for his groove-led selections, his sound blends jumpy UK Garage, 90s/00s Tech House and stripped-back minimal rollers. As the founder of TRONIK, Will has played a key role in showcasing both local and international talent, bringing high-energy underground sounds to dancefloors across the Isle of Man and the UK.",
-      "photo": null,
-      "crop": null
-    },
     {
       "name": "Allan Vannin",
       "genre": "",
@@ -246,6 +238,14 @@
         "y": 32.3,
         "zoom": 1.6
       }
+    },
+    {
+      "name": "Will Kneale",
+      "genre": "Minimal House, Tech House, UK Garage and Deep Tech",
+      "from": "Isle of Man",
+      "bio": "Hailing from the Isle of Man, Will Kneale is a DJ and promoter with deep roots in the local and UK underground scene. Known for his groove-led selections, his sound blends jumpy UK Garage, 90s/00s Tech House and stripped-back minimal rollers. As the founder of TRONIK, Will has played a key role in showcasing both local and international talent, bringing high-energy underground sounds to dancefloors across the Isle of Man and the UK.",
+      "photo": null,
+      "crop": null
     },
     {
       "name": "Wints",
