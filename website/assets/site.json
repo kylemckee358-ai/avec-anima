@@ -6,30 +6,34 @@
   "storeUrl": "https://kp1kgw-bb.myshopify.com",
   "youtubeChannelUrl": "",
   "soundcloudProfileUrl": "https://soundcloud.com/anima-937658688",
-  "about": "Avec Anima is an underground house and tech house night on the Isle of Man, running events at venues across the island — from Douglas clubs to one-off nights in the glens.",
-  "homeTagline": "Underground house & tech house nights on the Isle of Man. No two are the same.",
-  "homeVideoText": "Live sets on YouTube, curated playlists from our selectors on SoundCloud — a taste of what Avec Anima sounds like between shows.",
-  "homeSoundcloudText": "Not recordings from our nights — these are playlists carefully curated by the Avec Anima selectors. Every track is hand-picked and sequenced by the people behind the decks: the underground house and tech house they're playing, digging for and can't stop coming back to. Press play and let it run.",
-  "galleryIntro": "After movies and photos from Avec Anima nights across the Isle of Man. Hover over a film to preview it, or tap it to watch with sound.",
-  "musicIntro": "Live sets, warehouse highlights, and a look behind the scenes from Avec Anima nights. New uploads on our YouTube channel after every show.",
-  "musicSoundcloudText": "Playlists carefully curated by the Avec Anima selectors — not recordings from our nights, but hand-picked, properly sequenced selections of the underground house and tech house they're playing and digging for right now. Follow along to hear the sounds that shape our lineups before they land on the dancefloor.",
-  "storeComingSoonText": "The Avec Anima store is on its way. Check back soon.",
+  "about": "Anima is an underground house music brand on the Isle of Man, curating unique events at venues across the island. From Douglas clubs to one-off nights in the glens, no two are the same.",
+  "homeTagline": "Underground house nights on the Isle of Man. No two are the same.",
+  "homeVideoText": "Live sets on YouTube, curated playlists from our selectors on SoundCloud — a taste of what Anima sounds like between shows.",
+  "homeSoundcloudText": "Not recordings from our nights — these are playlists carefully curated by the Anima selectors. Every track is hand-picked and sequenced by the people behind the decks: the underground house they're playing, digging for and can't stop coming back to. Press play and let it run.",
+  "galleryIntro": "After movies and photos from Anima nights across the Isle of Man. Hover over a film to preview it, or tap it to watch with sound.",
+  "musicIntro": "Live sets, warehouse highlights, and a look behind the scenes from Anima nights. New uploads on our YouTube channel after every show.",
+  "musicSoundcloudText": "Playlists carefully curated by the Anima selectors — not recordings from our nights, but hand-picked, properly sequenced selections of the underground house they're playing and digging for right now. Follow along to hear the sounds that shape our lineups before they land on the dancefloor.",
+  "storeComingSoonText": "The Anima store is on its way. Check back soon.",
   "seo": {
     "index.html": {
-      "title": "Avec Anima — Underground House & Tech House Nights, Isle of Man",
-      "description": "Avec Anima runs underground house and tech house nights on the Isle of Man. Upcoming events, tickets, live sets and curated playlists."
+      "title": "Anima — Underground House Nights, Isle of Man",
+      "description": "Anima runs underground house nights on the Isle of Man. Upcoming events, tickets, live sets and curated playlists."
     },
     "events.html": {
-      "title": "Events — Avec Anima | House & Tech House Nights, Isle of Man",
-      "description": "Upcoming and previous Avec Anima events — house and tech house nights at venues across the Isle of Man. Dates, lineups and tickets."
+      "title": "Events —  Anima | House Nights, Isle of Man",
+      "description": "Upcoming and previous Anima events — house nights at venues across the Isle of Man. Dates, lineups and tickets."
     },
     "gallery.html": {
-      "title": "Gallery & After Movies — Avec Anima | Isle of Man",
-      "description": "After movies and photos from Avec Anima house and tech house nights on the Isle of Man. Watch the films and download full-quality photos."
+      "title": "Gallery & After Movies — Anima | Isle of Man",
+      "description": "After movies and photos from Anima nights on the Isle of Man. Watch the films and download full-quality photos."
     },
     "music.html": {
-      "title": "Music — Avec Anima | Live Sets & Playlists",
-      "description": "Watch Avec Anima live sets on YouTube and listen to playlists curated by our selectors on SoundCloud — underground house and tech house from the Isle of Man."
+      "title": "Music — Anima | Live Sets & Playlists",
+      "description": "Watch Anima live sets on YouTube and listen to playlists curated by our selectors on SoundCloud — underground house from the Isle of Man."
+    },
+    "about.html": {
+      "title": "About — Anima | Resident Artists, Isle of Man",
+      "description": "The story behind Anima, underground house nights on the Isle of Man, and the resident artists who play them."
     }
   }
 }
